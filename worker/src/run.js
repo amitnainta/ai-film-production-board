@@ -22,10 +22,10 @@ export async function runJobs(jobs, stages, { outDir, inputsDir, ctx, runId = ne
 
   for (const job of ordered) {
     log(`▶ ${job.id} (${job.provider})`);
-    const base = { jobId: job.id, shotId: job.shotId, shot: job.shot, stage: job.stage, kind: job.kind ?? null, provider: job.provider, credits: job.credits ?? 0, estUsd: job.estUsd ?? 0 };
+    const base = { jobId: job.id, shotId: job.shotId, shot: job.shot, stage: job.stage, kind: job.kind ?? null, provider: job.provider, credits: job.credits ?? 0, estUsd: job.estUsd ?? 0, warnings: [] };
     try {
       const provider = providerFor(job);
-      const files = await withRetry(() => execute(job, provider), log);
+      const files = await withRetry(() => execute(job, provider, base.warnings), log);
       const saved = [];
       for (const [i, f] of files.entries()) {
         const dir = path.join(outDir, job.shot);
@@ -36,6 +36,7 @@ export async function runJobs(jobs, stages, { outDir, inputsDir, ctx, runId = ne
       }
       done.set(job.id, saved);
       results.push({ ...base, status: "succeeded", files: saved });
+      for (const w of base.warnings) log(`  ! ${w}`);
       log(`  ✓ ${saved.map((s) => s.path).join(", ")}`);
     } catch (e) {
       results.push({ ...base, status: "failed", files: [], error: e.message });
@@ -43,14 +44,24 @@ export async function runJobs(jobs, stages, { outDir, inputsDir, ctx, runId = ne
     }
   }
 
-  async function execute(job, provider) {
-    if (job.stage === "keyframes") return provider.generateImage({ prompt: job.prompt });
+  async function execute(job, provider, warnings) {
+    if (job.stage === "keyframes") return provider.generateImage({ prompt: job.prompt, references: await resolveRefs(job, warnings) });
     if (job.stage === "video") {
       const imagePath = await keyframePath(job);
       return [await provider.generateVideo({ prompt: job.prompt, imagePath, seconds: job.seconds, kind: job.kind })];
     }
     if (job.stage === "voice") return [await provider.generateSpeech({ text: job.text, speaker: job.speaker })];
     throw new Error(`Unknown stage ${job.stage}`);
+  }
+
+  async function resolveRefs(job, warnings) {
+    const out = [];
+    for (const r of job.references ?? []) {
+      const p = await findInput(inputsDir, r.asset);
+      if (p) out.push({ ...r, path: p });
+      else if (!warnings.some((w) => w.includes(r.asset))) warnings.push(`Reference for ${r.name} (${r.asset}) isn't in ${inputsDir}; rendered without it.`);
+    }
+    return out;
   }
 
   async function keyframePath(job) {

@@ -1,7 +1,7 @@
 {
   "format": "ai-film-production-board",
   "version": 1,
-  "exportedAt": "2026-09-30T13:30:00Z",
+  "exportedAt": "2026-09-30T14:10:00Z",
   "settings": {
     "budget": 290,
     "draftRate": 6,
@@ -92,7 +92,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-01-01"
+      "id": "tock-01-01",
+      "location": "City"
     },
     {
       "action": "Arun lies awake in bed, eyes open, lit by a small blue night light.",
@@ -110,7 +111,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-01-02"
+      "id": "tock-01-02",
+      "location": "Bedroom"
     },
     {
       "action": "Arun's hands hold a framed photo of Grandpa pointing up at the night sky.",
@@ -128,7 +130,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-01-03"
+      "id": "tock-01-03",
+      "location": "Bedroom"
     },
     {
       "action": "Arun looks at the photo with a small, sad smile.",
@@ -146,7 +149,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-01-04"
+      "id": "tock-01-04",
+      "location": "Bedroom"
     },
     {
       "action": "Over Arun's shoulder: the window shows only orange haze, no stars.",
@@ -164,7 +168,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-01-05"
+      "id": "tock-01-05",
+      "location": "Bedroom"
     },
     {
       "action": "The orange glow reflects in Arun's eyes; he glances up at the ceiling, determined.",
@@ -182,7 +187,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-01-06"
+      "id": "tock-01-06",
+      "location": "Bedroom"
     },
     {
       "action": "In the hallway, Arun tugs down the attic hatch; a folding ladder drops and dust falls.",
@@ -200,7 +206,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-01-07"
+      "id": "tock-01-07",
+      "location": ""
     },
     {
       "action": "Arun climbs into a dusty attic lit by a round moonlit window, flashlight in hand.",
@@ -218,7 +225,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-01"
+      "id": "tock-02-01",
+      "location": "Attic"
     },
     {
       "action": "Arun finds a long leather case with Grandpa's handwriting on a paper tag.",
@@ -236,7 +244,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-02"
+      "id": "tock-02-02",
+      "location": "Attic"
     },
     {
       "action": "The brass latches click open and the lid lifts, revealing a brass telescope.",
@@ -254,7 +263,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-03"
+      "id": "tock-02-03",
+      "location": "Attic"
     },
     {
       "action": "Nestled beside the telescope lies a tiny brass firefly, dark, one wing bent.",
@@ -272,7 +282,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-04"
+      "id": "tock-02-04",
+      "location": "Attic"
     },
     {
       "action": "Arun leans in, curious, his face lit by the flashlight.",
@@ -290,7 +301,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-05"
+      "id": "tock-02-05",
+      "location": "Attic"
     },
     {
       "action": "Arun's fingertip nudges the firefly; nothing happens.",
@@ -308,7 +320,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-06"
+      "id": "tock-02-06",
+      "location": "Attic"
     },
     {
       "action": "Arun carries the case and the firefly to Grandpa's old workbench.",
@@ -326,7 +339,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-07"
+      "id": "tock-02-07",
+      "location": "Attic"
     },
     {
       "action": "Arun switches on a small desk lamp; a warm pool of light fills the workbench.",
@@ -344,7 +358,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-02-08"
+      "id": "tock-02-08",
+      "location": "Attic"
     },
     {
       "action": "Tools on the bench: a magnifying glass, tweezers, a tiny oil can.",
@@ -362,7 +377,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-01"
+      "id": "tock-03-01",
+      "location": "Attic"
     },
     {
       "action": "Arun peers through the magnifying glass, eye huge, tongue poking out.",
@@ -380,7 +396,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-02"
+      "id": "tock-03-02",
+      "location": "Attic"
     },
     {
       "action": "Tweezers straighten Tock's bent glass wing.",
@@ -398,7 +415,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-03"
+      "id": "tock-03-03",
+      "location": "Attic"
     },
     {
       "action": "A single drop of oil lands on the gear in Tock's back.",
@@ -416,7 +434,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-04"
+      "id": "tock-03-04",
+      "location": "Attic"
     },
     {
       "action": "Arun winds a tiny key in Tock's back.",
@@ -434,7 +453,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-05"
+      "id": "tock-03-05",
+      "location": "Attic"
     },
     {
       "action": "Tock's belly-light flickers amber, then glows steadily.",
@@ -452,7 +472,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-06"
+      "id": "tock-03-06",
+      "location": "Attic"
     },
     {
       "action": "Tock lifts its head and looks up at Arun.",
@@ -470,7 +491,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-07"
+      "id": "tock-03-07",
+      "location": "Attic"
     },
     {
       "action": "Arun's face, lit amber from below, breaks into a smile.",
@@ -488,7 +510,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-08"
+      "id": "tock-03-08",
+      "location": "Attic"
     },
     {
       "action": "Tock lifts off in a wobbly flight and bonks into the lampshade.",
@@ -506,7 +529,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-09"
+      "id": "tock-03-09",
+      "location": "Attic"
     },
     {
       "action": "Tock tumbles into Arun's hair; Arun laughs for the first time.",
@@ -524,7 +548,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-10"
+      "id": "tock-03-10",
+      "location": "Attic"
     },
     {
       "action": "Tock peeks out of Arun's hair and blinks.",
@@ -542,7 +567,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-03-11"
+      "id": "tock-03-11",
+      "location": "Attic"
     },
     {
       "action": "Arun steps out onto the flat rooftop carrying the telescope case; the city glows orange below.",
@@ -560,7 +586,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-01"
+      "id": "tock-04-01",
+      "location": "Rooftop"
     },
     {
       "action": "Arun sets up the tripod and telescope while Tock hovers at his shoulder.",
@@ -578,7 +605,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-02"
+      "id": "tock-04-02",
+      "location": "Rooftop"
     },
     {
       "action": "Arun props Grandpa's photo on the water tank ledge.",
@@ -596,7 +624,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-03"
+      "id": "tock-04-03",
+      "location": "Rooftop"
     },
     {
       "action": "Arun swings the telescope upward and crouches to the eyepiece.",
@@ -614,7 +643,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-04"
+      "id": "tock-04-04",
+      "location": "Rooftop"
     },
     {
       "action": "Through the eyepiece: nothing but blurry orange haze.",
@@ -632,7 +662,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-05"
+      "id": "tock-04-05",
+      "location": "Rooftop"
     },
     {
       "action": "Arun pulls back from the telescope, crushed.",
@@ -650,7 +681,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-06"
+      "id": "tock-04-06",
+      "location": "Rooftop"
     },
     {
       "action": "Arun slides down to sit against the water tank, hugging his knees.",
@@ -668,7 +700,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-07"
+      "id": "tock-04-07",
+      "location": "Rooftop"
     },
     {
       "action": "Tock hovers in front of Arun's sad face; its light dims.",
@@ -686,7 +719,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-08"
+      "id": "tock-04-08",
+      "location": "Rooftop"
     },
     {
       "action": "A tiny figure on a rooftop beneath a vast orange sky.",
@@ -704,7 +738,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-04-09"
+      "id": "tock-04-09",
+      "location": "Rooftop"
     },
     {
       "action": "Tock's light flares bright amber: it has an idea.",
@@ -722,7 +757,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-01"
+      "id": "tock-05-01",
+      "location": "Rooftop"
     },
     {
       "action": "Tock launches off the roof into the night.",
@@ -740,7 +776,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-02"
+      "id": "tock-05-02",
+      "location": "Rooftop"
     },
     {
       "action": "A single amber spark crosses the city rooftops.",
@@ -758,7 +795,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-03"
+      "id": "tock-05-03",
+      "location": "City"
     },
     {
       "action": "Across the street, a girl in a yellow hoodie notices the blinking light outside her window.",
@@ -776,7 +814,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-04"
+      "id": "tock-05-04",
+      "location": "Neighbour's apartment"
     },
     {
       "action": "She switches off her lamp to see it better.",
@@ -794,7 +833,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-05"
+      "id": "tock-05-05",
+      "location": "Neighbour's apartment"
     },
     {
       "action": "On the apartment block, windows switch off one by one.",
@@ -812,7 +852,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-06"
+      "id": "tock-05-06",
+      "location": "City"
     },
     {
       "action": "Tock hovers over the street, blinking a steady rhythm.",
@@ -830,7 +871,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-07"
+      "id": "tock-05-07",
+      "location": "City"
     },
     {
       "action": "Block by block, the lights go out across the city.",
@@ -848,7 +890,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-08"
+      "id": "tock-05-08",
+      "location": "City"
     },
     {
       "action": "Arun stands up on the roof, noticing the darkness spreading.",
@@ -866,7 +909,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-09"
+      "id": "tock-05-09",
+      "location": "Rooftop"
     },
     {
       "action": "Streetlights down a long avenue switch off one after another.",
@@ -884,7 +928,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-10"
+      "id": "tock-05-10",
+      "location": "City"
     },
     {
       "action": "The orange glow fades from Arun's face; blue night takes over.",
@@ -902,7 +947,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-11"
+      "id": "tock-05-11",
+      "location": "Rooftop"
     },
     {
       "action": "The whole city is dark; only Tock's tiny amber dot remains.",
@@ -920,7 +966,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-05-12"
+      "id": "tock-05-12",
+      "location": "City"
     },
     {
       "action": "The Milky Way appears above the dark city.",
@@ -938,7 +985,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-01"
+      "id": "tock-06-01",
+      "location": "City"
     },
     {
       "action": "Arun looks up, starlight filling his eyes.",
@@ -956,7 +1004,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-02"
+      "id": "tock-06-02",
+      "location": "Rooftop"
     },
     {
       "action": "Arun rushes to the telescope.",
@@ -974,7 +1023,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-03"
+      "id": "tock-06-03",
+      "location": "Rooftop"
     },
     {
       "action": "Through the eyepiece: a brilliant field of stars and a clear constellation.",
@@ -992,7 +1042,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-04"
+      "id": "tock-06-04",
+      "location": ""
     },
     {
       "action": "Starlight falls on Grandpa's photo; he points at the same stars.",
@@ -1010,7 +1061,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-05"
+      "id": "tock-06-05",
+      "location": "Rooftop"
     },
     {
       "action": "Arun steps back from the telescope and simply looks up at the vast sky.",
@@ -1028,7 +1080,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-06"
+      "id": "tock-06-06",
+      "location": "Rooftop"
     },
     {
       "action": "Tock returns and lands on the telescope tube, exhausted.",
@@ -1046,7 +1099,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-07"
+      "id": "tock-06-07",
+      "location": "Rooftop"
     },
     {
       "action": "Tock's light flickers, dim.",
@@ -1064,7 +1118,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-08"
+      "id": "tock-06-08",
+      "location": "Rooftop"
     },
     {
       "action": "Arun gently cups his hands around Tock.",
@@ -1082,7 +1137,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-06-09"
+      "id": "tock-06-09",
+      "location": "Rooftop"
     },
     {
       "action": "Arun props Grandpa's photo against the telescope.",
@@ -1100,7 +1156,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-07-01"
+      "id": "tock-07-01",
+      "location": "Rooftop"
     },
     {
       "action": "Arun whispers goodnight.",
@@ -1118,7 +1175,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-07-02"
+      "id": "tock-07-02",
+      "location": "Rooftop"
     },
     {
       "action": "Tock's light blinks.",
@@ -1136,7 +1194,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-07-03"
+      "id": "tock-07-03",
+      "location": "Rooftop"
     },
     {
       "action": "Above the rooftop, one star seems to blink back.",
@@ -1154,7 +1213,8 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-07-04"
+      "id": "tock-07-04",
+      "location": "Rooftop"
     },
     {
       "action": "Title card: TOCK.",
@@ -1172,9 +1232,42 @@
       "status": "script",
       "takes": 0,
       "tool": "Kling 3.0",
-      "id": "tock-07-05"
+      "id": "tock-07-05",
+      "location": ""
     }
   ],
   "takes": [],
-  "purchases": []
+  "purchases": [],
+  "locations": [
+    {
+      "id": "bedroom",
+      "name": "Bedroom",
+      "description": "Arun's small bedroom at night: single bed under a window, blue night light on the bedside table, rocket drawings pinned to the wall, orange city glow through the window",
+      "refAssets": []
+    },
+    {
+      "id": "attic",
+      "name": "Attic",
+      "description": "dusty wooden attic with sloped beams, a round moonlit window, old trunks and boxes, Grandpa's cluttered workbench with a small green desk lamp and watchmaker tools",
+      "refAssets": []
+    },
+    {
+      "id": "rooftop",
+      "name": "Rooftop",
+      "description": "flat concrete rooftop of a small apartment building: round metal water tank, low parapet wall, small roof door, hillside city spread out below",
+      "refAssets": []
+    },
+    {
+      "id": "city",
+      "name": "City",
+      "description": "small hillside city at night: terracotta tiled rooftops, apartment blocks with lit windows, a long avenue lined with streetlights",
+      "refAssets": []
+    },
+    {
+      "id": "apartment",
+      "name": "Neighbour's apartment",
+      "description": "small apartment room across the street: desk with a lamp beside a window facing the street, cosy clutter",
+      "refAssets": []
+    }
+  ]
 }

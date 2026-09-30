@@ -8,9 +8,31 @@ export function castFor(board, names) {
   return board.characters.filter((c) => wanted.includes(String(c.name ?? "").toLowerCase()));
 }
 
+export function locationFor(board, shot) {
+  const want = String(shot.location ?? "").trim().toLowerCase();
+  return want ? board.locations.find((l) => String(l.name ?? "").toLowerCase() === want) ?? null : null;
+}
+
 export function keyframePrompt(board, shot, style) {
   const looks = castFor(board, shot.characters).filter((c) => c.look).map((c) => `${c.name}: ${c.look}`);
-  return [shot.keyframePrompt, ...looks, style].map((s) => String(s ?? "").trim()).filter(Boolean).join(", ");
+  const loc = locationFor(board, shot);
+  const place = loc?.description ? `setting (${loc.name}): ${loc.description}` : "";
+  return [shot.keyframePrompt, ...looks, place, style].map((s) => String(s ?? "").trim()).filter(Boolean).join(", ");
+}
+
+// Reference images for a keyframe: the first reference of each character in
+// the shot, then the location's first reference. Asset ids only; the run step
+// resolves them to downloaded files.
+export function referencesFor(board, shot) {
+  const refs = [];
+  for (const c of castFor(board, shot.characters)) {
+    const id = Array.isArray(c.refAssets) ? c.refAssets[0] : null;
+    if (id) refs.push({ kind: "character", name: c.name, asset: id });
+  }
+  const loc = locationFor(board, shot);
+  const lid = Array.isArray(loc?.refAssets) ? loc.refAssets[0] : null;
+  if (lid) refs.push({ kind: "location", name: loc.name, asset: lid });
+  return refs;
 }
 
 // Kling renders 5 s or 10 s clips; longer shots are trimmed in the edit.
@@ -32,7 +54,7 @@ export function selectJobs(board, stages) {
       if (!auto("keyframes")) why("keyframes", "Keyframes stage is manual");
       else if (stages.keyframes.blocked) why("keyframes", stages.keyframes.blocked);
       else if (!shot.keyframePrompt) why("keyframes", "Shot has no keyframe prompt");
-      else jobs.push({ id: `${name}-keyframe`, shotId: shot.id, shot: name, stage: "keyframes", provider: stages.keyframes.provider, prompt: keyframePrompt(board, shot, style) });
+      else jobs.push({ id: `${name}-keyframe`, shotId: shot.id, shot: name, stage: "keyframes", provider: stages.keyframes.provider, prompt: keyframePrompt(board, shot, style), references: referencesFor(board, shot) });
     }
 
     if (q.video) {

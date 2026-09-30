@@ -9,13 +9,16 @@ The board lives at https://claude.ai/artifact/Tv99XQ9Yj8J9gC5uAtszcN. The worker
 
 ## 1. Pull board state
 
-Clear `renders/board/`, then read each collection into it with `ArtifactData` `list` and `out_dir: renders/board` (page with `query.cursor` until done): `shots`, `takes`, `characters`, `spend`. Read `settings/film` and `script/main` with `get` and the same `out_dir`. The worker reads this dump directory as is.
+Clear `renders/board/`, then read each collection into it with `ArtifactData` `list` and `out_dir: renders/board` (page with `query.cursor` until done): `shots`, `takes`, `characters`, `locations`, `spend`. Read `settings/film` and `script/main` with `get` and the same `out_dir`. The worker reads this dump directory as is.
 
 Note each document's `version`; every write in step 5 pins `if_version`.
 
 ## 2. Pull keyframe inputs
 
-For each shot whose `renderQueue.video` is set and that has a `keyframeAsset`, fetch the asset with `Artifact` `read`, `url` = the board, `path` = the asset id, `out_dir: renders/inputs`. The worker finds inputs by asset id.
+Fetch each asset with `Artifact` `read`, `url` = the board, `path` = the asset id, `out_dir: renders/inputs`. The worker finds inputs by asset id.
+
+- For each shot whose `renderQueue.video` is set and that has a `keyframeAsset`: that keyframe.
+- For each shot whose `renderQueue.keyframe` is set: the primary reference (`refAssets[0]`) of every character named in its `characters`, and of its `location` (matched by name in `locations`). `plan` lists these as `refs:` per job. A missing reference isn't fatal: the job renders without it and the result carries a warning.
 
 ## 3. Plan and get approval
 

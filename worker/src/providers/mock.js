@@ -8,8 +8,8 @@ const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
 export function createMock() {
   return {
     id: "mock",
-    async generateImage({ prompt }) {
-      return [{ bytes: PNG, ext: "png", meta: { mock: true, prompt } }];
+    async generateImage({ prompt, references = [] }) {
+      return [{ bytes: PNG, ext: "png", meta: { mock: true, prompt, references: references.map((r) => r.name) } }];
     },
     async generateVideo({ prompt, seconds, kind }) {
       return { bytes: Buffer.from(`MOCK VIDEO ${kind} ${seconds}s: ${prompt}\n`), ext: "mock.txt", meta: { mock: true } };

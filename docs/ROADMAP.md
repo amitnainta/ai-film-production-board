@@ -21,6 +21,10 @@
 - [x] Budget guard: hold jobs that would exceed the budget limit
 - [x] Mode switch per stage in the Pipeline tab; render queue in the shot editor
 - [ ] First live run against Kling and ElevenLabs (needs keys and network access to the provider hosts)
+- [x] Character and location reference images: uploaded on the board, sent with every keyframe
+- [x] Session start hook: ffmpeg and a local pipeline config in every new cloud session
+- [ ] Verify Kling's multi-image reference endpoint and field names on the first live run
+- [ ] Keyframe variant picker on the board (the worker makes 2 per shot; only the first is uploaded)
 - [ ] More providers: Flux or Google Imagen keyframes, Seedance 2.0 and Veo 3.1 video
 - [ ] Lip-sync stage
 

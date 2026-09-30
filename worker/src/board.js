@@ -4,7 +4,7 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 
-const COLLECTIONS = ["shots", "takes", "characters", "spend"];
+const COLLECTIONS = ["shots", "takes", "characters", "locations", "spend"];
 
 export async function loadBoard(source) {
   const info = await stat(source);
@@ -19,6 +19,7 @@ export function normalizeBoard(raw) {
     settings: raw.settings && typeof raw.settings === "object" ? raw.settings : {},
     script: typeof raw.script === "string" ? raw.script : "",
     characters: list(raw.characters),
+    locations: list(raw.locations),
     shots: list(raw.shots),
     takes: list(raw.takes),
     purchases: list(raw.purchases ?? raw.spend),

@@ -9,10 +9,13 @@
       "mode": "manual",
       "provider": "kling",
       "model": "kling-v3",
+      "referenceModel": "kling-v2-1",
       "usdPerImage": 0,
       "options": {
         "aspectRatio": "16:9",
-        "variantsPerShot": 2
+        "variantsPerShot": 2,
+        "referenceMode": "multi",
+        "imageFidelity": 0.5
       },
       "api": {
         "baseUrl": "https://api-singapore.klingai.com",
@@ -20,7 +23,8 @@
         "accessKeyEnv": "KLING_ACCESS_KEY",
         "secretKeyEnv": "KLING_SECRET_KEY",
         "endpoints": {
-          "image": "/v1/images/generations"
+          "image": "/v1/images/generations",
+          "multiImage": "/v1/images/multi-image2image"
         }
       }
     },

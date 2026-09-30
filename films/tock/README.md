@@ -11,6 +11,15 @@ A 5-minute, nearly wordless 3D animated short.
 - **Grandpa** — elderly man seen only in a framed photograph: warm smile, white moustache, grey flat cap, brown tweed jacket, one arm raised pointing up at a starry night sky *(voice: none (photo only))*
 - **Tock** — thumb-sized clockwork firefly about 4 cm long (fits on a boy's fingertip), polished brass body, two thin glass wings, round glowing amber glass belly-light, small visible gear and winding key in its back, tiny round lens eyes *(voice: no words; soft clicks and ticks)*
 
+## Locations
+- **Bedroom**: Arun's small bedroom at night: single bed under a window, blue night light on the bedside table, rocket drawings pinned to the wall, orange city glow through the window
+- **Attic**: dusty wooden attic with sloped beams, a round moonlit window, old trunks and boxes, Grandpa's cluttered workbench with a small green desk lamp and watchmaker tools
+- **Rooftop**: flat concrete rooftop of a small apartment building: round metal water tank, low parapet wall, small roof door, hillside city spread out below
+- **City**: small hillside city at night: terracotta tiled rooftops, apartment blocks with lit windows, a long avenue lined with streetlights
+- **Neighbour's apartment**: small apartment room across the street: desk with a lamp beside a window facing the street, cosy clutter
+
+Reference images for the cast and locations are uploaded on the board (Script & cast tab) and aren't part of this snapshot.
+
 ## Files
 - `script.md`: the screenplay.
 - `shot-list.md`: all 61 shots with framing, duration and prompts.
