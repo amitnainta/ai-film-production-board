@@ -16,7 +16,7 @@
 └───────────────────────────────────────────────────────────────────────────────────────────┘
                 │
                 ▼
-        Assembly (Stage 3): ffmpeg rough cut, timeline export for DaVinci Resolve
+        Assembly (worker/src/assemble.js): ffmpeg rough cut, FCPXML / EDL / SRT for DaVinci Resolve
 ```
 
 ### Why the board doesn't call providers itself
@@ -99,3 +99,13 @@ All collections live in the artifact database. Ids are opaque strings. Media fie
 Kling renders 5 s or 10 s clips; shots longer than 5 s request 10 s and are trimmed in the edit.
 
 A human still approves keyframes, chooses takes and does the final edit.
+
+## Assembly
+
+`node worker/src/cli.js assemble` builds a timeline from the board and writes the edit to `renders/cut/`.
+
+- **Timeline:** every shot in scene and shot order, for its planned duration (rounded to frames at `assembly.fps`). Picture is the selected take if its file is in `renders/inputs/`, else the keyframe still, else a slate card. Missing media is reported as a warning, never an error.
+- **Rough cut (`rough-cut.mp4`):** one ffmpeg pass per shot (scaled and padded to the frame size; a take shorter than its slot holds its last frame; takes play without their own audio), a lossless join, then an audio pass that places each dialogue file at its shot's start, mixes in an optional looping music bed at `musicVolumeDb`, and trims to the exact runtime. H.264 + AAC.
+- **Edit files:** `timeline.fcpxml` (FCPXML 1.9: clips end to end, dialogue as connected clips, gaps for slates and holds), `timeline.edl` (CMX 3600, picture only, record timecode from 01:00:00:00), `captions.srt` (dialogue per shot), `timeline.json`, and `assemble.sh` with the exact ffmpeg commands.
+
+Settings live in the `assembly` section of `config/pipeline.json`: `fps`, `width`, `height`, `slateColor`, `musicVolumeDb`.

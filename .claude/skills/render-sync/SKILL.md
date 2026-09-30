@@ -44,6 +44,15 @@ Don't upload files marked `"mock": true`; they are rehearsal output. Still clear
 
 Then remove each succeeded job's key from the shot's `renderQueue` (set `renderQueue` to null when empty). For failed jobs, leave the queue entry and set `renderError` to the error text. For jobs the plan skipped, do the same with `Skipped: <reason>` so the user sees why in the shot editor. Clear `renderError` on shots whose jobs all succeeded. Use one `ArtifactData` `batch` per group of up to 50 writes.
 
-## 6. Report
+## 6. Report (render)
 
 Tell the user what rendered, what failed and why, and the estimated spend of the run. Provider charges go to their provider account; they log top-ups as purchases on the Budget tab.
+
+# Assembly (rough cut and edit files)
+
+Use when the user asks for a rough cut, an edit timeline or a Resolve export.
+
+1. Pull board state as in step 1.
+2. Download media into `renders/inputs/` with `Artifact` `read` (`path` = asset id): for every shot, the `asset` of its `selectedTake` (look it up in `takes`), and its `keyframeAsset` when it has no selected take. Dialogue files are already local under `renders/`.
+3. Run `node worker/src/cli.js assemble` (add `--music <file>` for a music bed). It needs ffmpeg for the video: `FFMPEG_PATH`, `--ffmpeg`, or `ffmpeg` on the PATH. If it isn't installed, `pip install imageio-ffmpeg` provides a static build; without ffmpeg, `--edit-only` still writes the edit files.
+4. Outputs are in `renders/cut/`: `rough-cut.mp4`, `timeline.fcpxml` (import in DaVinci Resolve: File → Import → Timeline), `timeline.edl`, `captions.srt`, `timeline.json`, and `assemble.sh` to rebuild the video by hand. Report the shot counts (takes, stills, slates) and any warnings, and send the user the files they want.

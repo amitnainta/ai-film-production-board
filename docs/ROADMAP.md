@@ -26,6 +26,10 @@
 
 ## Stage 3 — Assembly and delivery
 
-- [ ] ffmpeg rough cut with dialogue and music in shot order
-- [ ] Timeline export for DaVinci Resolve (EDL or FCPXML) with clips in place
-- [ ] Delivery checklist: resolution, loudness, captions, credits
+- [x] ffmpeg rough cut in shot order: takes, keyframe stills, slate cards; dialogue placed per shot; optional music bed
+- [x] Timeline export for DaVinci Resolve: FCPXML 1.9 with dialogue as connected clips, plus CMX 3600 EDL
+- [x] Captions (SRT) from the shot list's dialogue
+- [ ] Import check of the FCPXML in DaVinci Resolve with real takes
+- [ ] Loudness normalisation for delivery (e.g. -14 LUFS for web)
+- [ ] Title and credits cards
+- [ ] Upload a preview-quality rough cut to the board's Rough cut tab
