@@ -50,8 +50,7 @@
       "model": "eleven_multilingual_v2",
       "usdPerLine": 0,
       "voices": {
-        "Mira": "<voice id>",
-        "Bolt": "<voice id>"
+        "Arun": "<voice id>"
       },
       "options": {
         "outputFormat": "mp3_44100_128"
