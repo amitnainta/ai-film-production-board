@@ -1,0 +1,1231 @@
+<title>Animated Short Production Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: production slate header, four gauges, then a tabbed work area (shots / script / rough cut / budget / pipeline) on an animator's blue-pencil palette */
+:root {
+  --bg: #eef1f6;
+  --surface: #ffffff;
+  --sunk: #e3e8f0;
+  --ink: #18202e;
+  --muted: #5b6577;
+  --line: #d3dae6;
+  --accent: #2f62d8;       /* non-photo blue pencil */
+  --accent-soft: #dfe8fb;
+  --accent-ink: #ffffff;
+  --red: #c8412f;          /* cleanup red pencil */
+  --s-script: #8a93a3;
+  --s-keyframe: #c98a12;
+  --s-animating: #2f62d8;
+  --s-approved: #1f8a5b;
+  --s-final: #18202e;
+  --screen: #0b0e14;
+  --screen-ink: #e7ebf2;
+  --shadow: 0 1px 2px rgba(24,32,46,.06), 0 8px 24px rgba(24,32,46,.08);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151d; --surface: #1a202b; --sunk: #232a37; --ink: #e7ebf2; --muted: #9aa4b6; --line: #2e3646;
+    --accent: #7ea2f5; --accent-soft: #24304a; --accent-ink: #0d1320; --red: #f07a68;
+    --s-script: #8a93a3; --s-keyframe: #e2a93a; --s-animating: #7ea2f5; --s-approved: #4cc38a; --s-final: #e7ebf2;
+    --screen: #05070b; --screen-ink: #e7ebf2;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151d; --surface: #1a202b; --sunk: #232a37; --ink: #e7ebf2; --muted: #9aa4b6; --line: #2e3646;
+  --accent: #7ea2f5; --accent-soft: #24304a; --accent-ink: #0d1320; --red: #f07a68;
+  --s-script: #8a93a3; --s-keyframe: #e2a93a; --s-animating: #7ea2f5; --s-approved: #4cc38a; --s-final: #e7ebf2;
+  --screen: #05070b; --screen-ink: #e7ebf2;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; display: grid; gap: 24px; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 500 12px/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* Slate header */
+.slate { display: grid; gap: 10px; }
+.slate-top { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.clap { display: inline-flex; gap: 3px; }
+.clap i { width: 14px; height: 8px; background: var(--ink); transform: skewX(-30deg); }
+.clap i:nth-child(even) { background: var(--accent); }
+#filmTitle { font: 700 clamp(28px, 5vw, 44px)/1.05 var(--f-display); letter-spacing: -.02em; background: transparent; border: 0; border-bottom: 2px dashed transparent; padding: 2px 0; width: 100%; min-width: 0; border-radius: 0; }
+#filmTitle:hover, #filmTitle:focus { border-bottom-color: var(--line); outline: none; }
+.sub { color: var(--muted); max-width: 70ch; margin: 0; }
+.conn { font: 500 12px/1 var(--f-mono); color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.conn::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--s-script); }
+.conn.live::before { background: var(--s-approved); }
+.conn.off::before { background: var(--red); }
+
+/* Gauges */
+.gauges { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 860px) { .gauges { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 440px) { .gauges { grid-template-columns: 1fr; } }
+.gauge { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 6px; min-width: 0; }
+.gauge .big { font: 500 26px/1.1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.gauge .big small { font-size: 15px; color: var(--muted); }
+.gauge .note { font-size: 13px; color: var(--muted); }
+.meter { height: 6px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+.meter b { display: block; height: 100%; background: var(--accent); border-radius: 3px; width: 0; transition: width .3s; }
+.meter b.warn { background: var(--s-keyframe); }
+.meter b.over { background: var(--red); }
+
+/* Pipeline strip */
+.pipeline { display: grid; gap: 8px; }
+.pipe-bar { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--sunk); }
+.pipe-bar span { height: 100%; }
+.pipe-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+
+/* Tabs */
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { background: none; border: 0; padding: 10px 14px; font-weight: 600; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.view { display: grid; gap: 14px; }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px; font-size: 13px; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 14px; font-weight: 500; cursor: pointer; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.danger { color: var(--red); }
+.btn.small { padding: 3px 9px; font-size: 12.5px; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.file { position: relative; overflow: hidden; }
+.btn.file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* Tables */
+.table-box { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 900px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11.5px/1.2 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--sunk); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr.shot { cursor: pointer; }
+tbody tr.shot:hover td { background: var(--accent-soft); }
+td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.slug { font: 500 13px var(--f-mono); white-space: nowrap; }
+.frame { font: 500 11.5px var(--f-mono); padding: 2px 6px; border: 1px solid var(--line); border-radius: 4px; }
+.action { max-width: 36ch; }
+.dialogue { color: var(--muted); font-style: italic; font-size: 13.5px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.ex { font: 500 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--s-keyframe); border: 1px dashed var(--s-keyframe); border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+.take-btns { display: flex; gap: 4px; }
+.thumb { width: 72px; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; background: var(--sunk); object-fit: cover; display: block; }
+.thumb.none { display: grid; place-items: center; font: 500 10px var(--f-mono); color: var(--muted); border: 1px dashed var(--line); }
+.empty { padding: 36px 20px; text-align: center; color: var(--muted); display: grid; gap: 10px; justify-items: center; }
+
+/* Panels & forms */
+.two { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .two { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; min-width: 0; }
+.panel.span { grid-column: 1 / -1; }
+.panel h2 { font: 700 19px/1.2 var(--f-display); margin: 0; text-wrap: balance; }
+.panel p { margin: 0; }
+.plan-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
+.plan-row .t { font-weight: 600; }
+.plan-row .t small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+.plan-row .v { font-family: var(--f-mono); font-variant-numeric: tabular-nums; font-size: 13.5px; }
+.plan-row .meter { grid-column: 1 / -1; }
+.log-table table, .small-table table { min-width: 560px; }
+form.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+form.grid .full { grid-column: 1 / -1; }
+@media (max-width: 520px) { form.grid { grid-template-columns: 1fr; } }
+label { display: grid; gap: 4px; font-size: 12.5px; font-weight: 500; color: var(--muted); }
+input, select, textarea { background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 7px 9px; font-size: 14px; color: var(--ink); width: 100%; min-width: 0; }
+textarea { resize: vertical; min-height: 64px; }
+#scriptText { min-height: 320px; font: 14px/1.6 var(--f-mono); }
+.status-line { font-size: 13px; color: var(--muted); min-height: 1.4em; }
+
+/* Characters */
+.cast { display: grid; gap: 10px; }
+.cast-card { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; cursor: pointer; background: var(--bg); }
+.cast-card:hover { border-color: var(--accent); }
+.cast-card b { font-family: var(--f-display); font-size: 16px; }
+.cast-card span { font-size: 13.5px; color: var(--muted); }
+
+/* Pipeline config */
+.stage-list { display: grid; gap: 0; }
+.stage { display: grid; grid-template-columns: 34px minmax(0, 1fr) minmax(0, 200px) minmax(0, 170px); gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.stage:last-child { border-bottom: 0; }
+.stage .n { font: 500 12px var(--f-mono); color: var(--muted); width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; }
+.stage .what b { display: block; }
+.stage .what span { font-size: 13px; color: var(--muted); }
+@media (max-width: 700px) { .stage { grid-template-columns: 34px minmax(0, 1fr); } .stage select { grid-column: 2; } }
+
+/* Rough cut */
+.screen { background: var(--screen); border-radius: 10px; aspect-ratio: 16 / 9; max-width: 100%; position: relative; overflow: hidden; display: grid; place-items: center; }
+.screen video, .screen img { width: 100%; height: 100%; object-fit: contain; position: absolute; inset: 0; }
+.screen .card { color: var(--screen-ink); text-align: center; padding: 24px; display: grid; gap: 8px; max-width: 60ch; }
+.screen .card .slug { color: #8fa3c9; }
+.screen .card p { margin: 0; font-size: clamp(14px, 2.2vw, 20px); }
+.screen .badge { position: absolute; left: 12px; top: 12px; font: 500 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--screen-ink); background: rgba(0,0,0,.55); padding: 4px 8px; border-radius: 4px; z-index: 2; }
+.timeline { display: flex; gap: 2px; height: 26px; }
+.timeline button { border: 0; padding: 0; height: 100%; min-width: 4px; border-radius: 3px; cursor: pointer; opacity: .75; }
+.timeline button.on { opacity: 1; outline: 2px solid var(--ink); outline-offset: 1px; }
+.timeline .video { background: var(--s-approved); }
+.timeline .still { background: var(--s-keyframe); }
+.timeline .slate { background: var(--s-script); }
+.rc-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+
+/* Editor drawer */
+.scrim { position: fixed; inset: 0; background: rgba(10,14,22,.45); display: flex; justify-content: flex-end; z-index: 20; }
+.drawer { background: var(--surface); width: min(620px, 100%); height: 100%; overflow-y: auto; padding-inline: 20px; padding-top: calc(22px + env(safe-area-inset-top, 0px)); padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 16px; align-content: start; box-shadow: var(--shadow); }
+.drawer h2 { font: 700 22px/1.2 var(--f-display); margin: 0; }
+.drawer h3 { font: 600 13px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.drawer-foot { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 14px; position: sticky; bottom: calc(-22px - env(safe-area-inset-bottom, 0px)); background: var(--surface); padding-bottom: 8px; }
+.prompt-row { display: flex; gap: 6px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.confirm { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--red); }
+.media-box { display: grid; gap: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+.kf { width: 100%; aspect-ratio: 16 / 9; max-width: 100%; object-fit: cover; border-radius: 6px; background: var(--sunk); display: block; }
+.takes { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.take { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: grid; background: var(--bg); }
+.take.sel { border-color: var(--s-approved); box-shadow: 0 0 0 2px var(--s-approved); }
+.take video { width: 100%; aspect-ratio: 16 / 9; max-width: 100%; background: var(--screen); display: block; }
+.take .meta { padding: 6px 8px; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; justify-content: space-between; font-size: 12px; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 9px 16px; border-radius: 8px; font-size: 14px; z-index: 30; max-width: calc(100% - 32px); }
+.footnote { font-size: 12.5px; color: var(--muted); max-width: 80ch; margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="slate">
+    <div class="slate-top">
+      <span class="eyebrow"><span class="clap" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>&nbsp; Production board · 3D animated short</span>
+      <span id="conn" class="conn">Connecting…</span>
+    </div>
+    <input id="filmTitle" aria-label="Film title" value="Untitled animated short" maxlength="80">
+    <p class="sub">Write the script, break it into shots, attach keyframes and takes, and watch the rough cut come together. Click a shot to edit it.</p>
+  </header>
+
+  <section class="gauges" aria-label="Summary">
+    <div class="gauge">
+      <span class="eyebrow">Runtime</span>
+      <span class="big" id="gRuntime">00:00 <small>/ 05:00</small></span>
+      <div class="meter"><b id="mRuntime"></b></div>
+      <span class="note" id="nRuntime">Sum of planned shot durations</span>
+    </div>
+    <div class="gauge">
+      <span class="eyebrow">Shots done</span>
+      <span class="big" id="gShots">0 <small>/ 0</small></span>
+      <div class="meter"><b id="mShots"></b></div>
+      <span class="note" id="nShots">Approved or final</span>
+    </div>
+    <div class="gauge">
+      <span class="eyebrow">Video credits</span>
+      <span class="big" id="gCredits">0 <small>/ 0</small></span>
+      <div class="meter"><b id="mCredits"></b></div>
+      <span class="note" id="nCredits">Used of credits bought</span>
+    </div>
+    <div class="gauge">
+      <span class="eyebrow">Spend</span>
+      <span class="big" id="gSpend">$0 <small>/ $290</small></span>
+      <div class="meter"><b id="mSpend"></b></div>
+      <span class="note" id="nSpend">Logged of total budget</span>
+    </div>
+  </section>
+
+  <section class="pipeline" aria-label="Shot status">
+    <div class="pipe-bar" id="pipeBar"></div>
+    <div class="pipe-legend" id="pipeLegend"></div>
+  </section>
+
+  <nav class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" aria-selected="true" data-tab="shots">Shot list</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="script">Script &amp; cast</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="cut">Rough cut</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="budget">Budget</button>
+    <button class="tab" role="tab" aria-selected="false" data-tab="pipeline">Pipeline</button>
+  </nav>
+
+  <!-- SHOTS -->
+  <section class="view" id="view-shots">
+    <div class="toolbar">
+      <div class="chips" id="filters"></div>
+      <div class="row">
+        <button class="btn" id="clearEx" hidden>Remove examples</button>
+        <button class="btn primary" id="addShot">+ Add shot</button>
+      </div>
+    </div>
+    <div class="table-box">
+      <table>
+        <thead><tr>
+          <th>Shot</th><th>Frame</th><th></th><th>Action / dialogue</th><th>Dur</th><th>Tool</th><th>Status</th><th>Takes</th><th>Credits</th><th>Log a take</th>
+        </tr></thead>
+        <tbody id="shotRows"></tbody>
+      </table>
+    </div>
+    <p class="footnote" id="rateNote"></p>
+  </section>
+
+  <!-- SCRIPT & CAST -->
+  <section class="view" id="view-script" hidden>
+    <div class="two">
+      <div class="panel">
+        <div class="toolbar"><h2>Script</h2><span class="status-line" id="scriptSaved"></span></div>
+        <textarea id="scriptText" placeholder="Paste or write your script here. Screenplay format works best: scene headings (INT. WORKSHOP – DAWN), action lines, and dialogue under character names."></textarea>
+        <div class="row">
+          <button class="btn" id="saveScript">Save script</button>
+          <button class="btn primary" id="breakdown">Break into shots with Claude</button>
+          <button class="btn" id="stopBreakdown" hidden>Stop</button>
+        </div>
+        <p class="status-line" id="breakdownStatus"></p>
+      </div>
+      <div class="panel">
+        <h2>Cast</h2>
+        <p class="muted" style="font-size:13.5px">Lock each character's look here. Claude uses these descriptions in every prompt it writes, which keeps faces, size and outfits consistent.</p>
+        <div class="cast" id="castList"></div>
+        <form class="grid" id="castForm">
+          <label class="full">Name<input id="cName" required maxlength="40"></label>
+          <label class="full">Locked look (face, build, height, outfit)<textarea id="cLook" placeholder="e.g. 11-year-old girl, curly red hair, freckles, round glasses pushed up, yellow raincoat, about 140 cm tall"></textarea></label>
+          <label class="full">Voice notes<input id="cVoice" placeholder="e.g. bright, fast talker; ElevenLabs voice “Mira v2”"></label>
+          <div class="full row">
+            <button class="btn primary" type="submit" id="cSave">Add character</button>
+            <button class="btn" type="button" id="cCancel" hidden>Cancel</button>
+            <button class="btn danger" type="button" id="cDelete" hidden>Delete</button>
+          </div>
+        </form>
+      </div>
+      <div class="panel span" id="draftPanel" hidden>
+        <div class="toolbar">
+          <h2 id="draftTitle">Proposed shots</h2>
+          <div class="row">
+            <label style="display:flex;gap:6px;align-items:center;font-size:13px;color:var(--ink)"><input type="checkbox" id="replaceEx" style="width:auto" checked> Remove example shots</label>
+            <button class="btn" id="discardDraft">Discard</button>
+            <button class="btn primary" id="acceptDraft">Add to shot list</button>
+          </div>
+        </div>
+        <div class="table-box small-table">
+          <table>
+            <thead><tr><th>Shot</th><th>Frame</th><th>Dur</th><th>Action / dialogue</th><th>Keyframe prompt</th></tr></thead>
+            <tbody id="draftRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUGH CUT -->
+  <section class="view" id="view-cut" hidden>
+    <div class="screen" id="screen">
+      <span class="badge" id="rcBadge">Shot 1</span>
+      <video id="rcVideo" playsinline hidden></video>
+      <img id="rcImg" alt="" hidden>
+      <div class="card" id="rcCard"></div>
+    </div>
+    <div class="timeline" id="rcTimeline" aria-label="Timeline"></div>
+    <div class="rc-controls">
+      <div class="row">
+        <button class="btn" id="rcPrev" aria-label="Previous shot">◀︎ Prev</button>
+        <button class="btn primary" id="rcPlay">▶︎ Play</button>
+        <button class="btn" id="rcNext" aria-label="Next shot">Next ▶︎</button>
+      </div>
+      <span class="mono muted" id="rcClock">00:00 / 00:00</span>
+    </div>
+    <div class="pipe-legend">
+      <span><i class="dot" style="background:var(--s-approved)"></i>Selected video take</span>
+      <span><i class="dot" style="background:var(--s-keyframe)"></i>Keyframe still (animatic)</span>
+      <span><i class="dot" style="background:var(--s-script)"></i>Nothing yet (slate card)</span>
+    </div>
+    <p class="footnote">Plays every shot in order at its planned duration. Shots with a selected take play the video; shots with only a keyframe hold the still; the rest show a slate with the action line. Sound comes from the takes themselves.</p>
+  </section>
+
+  <!-- BUDGET -->
+  <section class="view" id="view-budget" hidden>
+    <div class="two">
+      <div class="panel">
+        <h2>Plan vs. spent</h2>
+        <div id="planRows" style="display:grid;gap:14px"></div>
+      </div>
+      <div class="panel">
+        <h2>Log a purchase</h2>
+        <form class="grid" id="spendForm">
+          <label>Date<input type="date" id="spDate" required></label>
+          <label>Tool<select id="spTool"></select></label>
+          <label class="full">Item<input id="spItem" placeholder="e.g. Kling Premier, month 1" required></label>
+          <label>Amount ($)<input type="number" id="spAmount" min="0" step="0.01" required></label>
+          <label>Credits added<input type="number" id="spCredits" min="0" step="1" placeholder="Video tool only"></label>
+          <div class="full"><button class="btn primary" type="submit">Add purchase</button></div>
+        </form>
+      </div>
+      <div class="panel span">
+        <h2>Purchase log</h2>
+        <div class="table-box log-table">
+          <table>
+            <thead><tr><th>Date</th><th>Tool</th><th>Item</th><th>Amount</th><th>Credits</th><th></th></tr></thead>
+            <tbody id="spendRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section class="view" id="view-pipeline" hidden>
+    <div class="two">
+      <div class="panel span">
+        <h2>Pipeline stages</h2>
+        <p class="muted" style="font-size:13.5px">Choose the tool for each stage. Every stage is manual for now: you generate in the tool and upload the result here. Automated stages need the render worker (Stage 2), which will read this configuration.</p>
+        <div class="stage-list" id="stageList"></div>
+      </div>
+      <div class="panel">
+        <h2>Production settings</h2>
+        <form class="grid" id="settingsForm">
+          <label>Target runtime (seconds)<input type="number" id="stTarget" min="10" step="1"></label>
+          <label>Total budget ($)<input type="number" id="stBudget" min="0" step="1"></label>
+          <label>Draft take rate (credits / second)<input type="number" id="stDraft" min="0" step="1"></label>
+          <label>Final take rate (credits / second)<input type="number" id="stFinal" min="0" step="1"></label>
+          <label class="full">Style prompt (added to every keyframe prompt)<textarea id="stStyle"></textarea></label>
+          <div class="full"><button class="btn primary" type="submit">Save settings</button></div>
+        </form>
+        <p class="footnote">Default rates follow Kling 3.0 pricing found in September 2026: 6 credits/s for 720p without audio, 12 credits/s for 1080p with native audio.</p>
+      </div>
+      <div class="panel">
+        <h2>Export</h2>
+        <p class="muted" style="font-size:13.5px">Save the whole board (settings, cast, script, shots, takes and purchases) as one JSON file. It is the hand-off format the render worker and editing exports will use.</p>
+        <div class="row"><button class="btn" id="exportJson">Export board (JSON)</button><button class="btn" id="exportCsv">Export shot list (CSV)</button></div>
+        <p class="status-line" id="exportStatus"></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Shot editor -->
+<div class="scrim" id="scrim" hidden>
+  <div class="drawer" role="dialog" aria-modal="true" aria-labelledby="edTitle">
+    <h2 id="edTitle">Edit shot</h2>
+    <form class="grid" id="shotForm">
+      <label>Scene<input type="number" id="edScene" min="1" step="1" required></label>
+      <label>Shot<input type="number" id="edNo" min="1" step="1" required></label>
+      <label>Framing<select id="edFrame"></select></label>
+      <label>Duration (s)<input type="number" id="edDur" min="1" max="30" step="0.5" required></label>
+      <label>Tool<select id="edTool"></select></label>
+      <label>Status<select id="edStatus"></select></label>
+      <label class="full">Characters<input id="edChars" placeholder="e.g. Mira, Bolt"></label>
+      <label class="full">Action<textarea id="edAction" placeholder="What happens in this shot"></textarea></label>
+      <label class="full">Dialogue<textarea id="edDialogue" placeholder="Leave empty if none"></textarea></label>
+      <div class="full prompt-row"><span class="eyebrow">Prompts</span><span class="row"><span class="status-line" id="suggestStatus"></span><button type="button" class="btn small primary" id="suggestBtn" hidden>Suggest prompts with Claude</button></span></div>
+      <label class="full"><span class="prompt-row">Keyframe prompt (image) <button type="button" class="btn small" data-copy="edKey">Copy with cast &amp; style</button></span><textarea id="edKey"></textarea></label>
+      <label class="full"><span class="prompt-row">Motion prompt (video) <button type="button" class="btn small" data-copy="edMotion">Copy</button></span><textarea id="edMotion"></textarea></label>
+      <label>Takes<input type="number" id="edTakes" min="0" step="1"></label>
+      <label>Credits used<input type="number" id="edCredits" min="0" step="1"></label>
+      <label class="full">Notes<textarea id="edNotes" placeholder="Continuity issues, retake reasons…"></textarea></label>
+    </form>
+
+    <div id="mediaArea" hidden style="display:grid;gap:16px">
+      <div class="media-box">
+        <div class="prompt-row"><h3>Keyframe</h3>
+          <span class="row" id="kfBtns"><span class="btn small file">Upload image<input type="file" id="kfFile" accept="image/png,image/jpeg,image/webp"></span><button class="btn small danger" id="kfRemove" type="button" hidden>Remove</button></span>
+        </div>
+        <img class="kf" id="kfImg" alt="Keyframe" hidden>
+        <p class="status-line" id="kfStatus">No keyframe yet. Generate it in your image tool, then upload it here.</p>
+      </div>
+      <div class="media-box">
+        <div class="prompt-row"><h3>Takes</h3>
+          <span class="row" id="takeBtns">
+            <select id="takeKind" style="width:auto"><option value="draft">Draft take</option><option value="final">Final take</option></select>
+            <span class="btn small file">Upload video<input type="file" id="takeFile" accept="video/mp4,video/webm"></span>
+          </span>
+        </div>
+        <div class="takes" id="takeList"></div>
+        <p class="status-line" id="takeStatus">Uploading a take logs its credits. Files up to 20 MB (MP4 or WebM).</p>
+      </div>
+    </div>
+
+    <div class="drawer-foot">
+      <div id="delWrap"></div>
+      <div class="row">
+        <button class="btn" id="edCancel" type="button">Close</button>
+        <button class="btn primary" id="edSave" type="button">Save shot</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function () {
+  const STATUSES = [
+    { id: "script", label: "Scripted" },
+    { id: "keyframe", label: "Keyframe" },
+    { id: "animating", label: "Animating" },
+    { id: "approved", label: "Approved" },
+    { id: "final", label: "Final" },
+  ];
+  const FRAMES = ["WS", "MS", "MCU", "CU", "ECU", "OTS", "POV", "INSERT"];
+  const TOOLS = ["Kling 3.0", "Seedance 2.0", "Veo 3.1", "Runway Gen-4.5", "Other"];
+  const STAGES = [
+    { id: "keyframes", label: "Keyframes", desc: "Character sheets and a start frame for every shot", options: ["Midjourney", "Flux.2", "Google Imagen", "Other"] },
+    { id: "video", label: "Video takes", desc: "Image-to-video for most shots", options: ["Kling 3.0", "Seedance 2.0", "Veo 3.1", "Runway Gen-4.5", "Other"] },
+    { id: "videoBackup", label: "Backup video", desc: "Action and multi-character shots", options: ["Seedance 2.0", "Kling 3.0", "Veo 3.1", "Vidu", "None"] },
+    { id: "voice", label: "Voices", desc: "One saved voice per character", options: ["ElevenLabs", "Other"] },
+    { id: "lipsync", label: "Lip-sync", desc: "Match mouths to recorded dialogue", options: ["Kling lip-sync", "Other"] },
+    { id: "music", label: "Music & sound", desc: "Score, ambience and effects", options: ["Suno", "Sound library", "Native video audio", "Other"] },
+    { id: "edit", label: "Edit & finish", desc: "Cut, colour match, sound mix, export", options: ["DaVinci Resolve", "Premiere Pro", "Other"] },
+  ];
+  const DEFAULT_SETTINGS = {
+    title: "Untitled animated short",
+    targetSeconds: 300,
+    budget: 290,
+    draftRate: 6,
+    finalRate: 12,
+    style: "stylized 3D animated feature film, soft global illumination, subsurface skin shading, expressive oversized eyes, rounded shapes, cinematic depth of field",
+    plan: [
+      { tool: "Kling 3.0", planned: 162, note: "Premier × 2 months" },
+      { tool: "Midjourney", planned: 60, note: "Standard × 2 months" },
+      { tool: "Seedance 2.0", planned: 25, note: "backup shots" },
+      { tool: "ElevenLabs", planned: 33, note: "Creator, 2 months" },
+      { tool: "Suno", planned: 10, note: "Pro, 1 month" },
+    ],
+    pipeline: {},
+  };
+
+  let db = null, assets = null, sample = null, downloads = null, canWrite = true;
+  let shots = [], takes = [], spend = [], cast = [], settings = { ...DEFAULT_SETTINGS }, script = "";
+  let filter = "all", editingId = null, castEditing = null, draftShots = [];
+  let dbMessage = "Connecting to your production board…";
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
+  const money = (v) => "$" + num(v).toLocaleString(undefined, { maximumFractionDigits: 2 });
+  const tc = (s) => { s = Math.round(num(s)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+  const statusColor = (id) => `var(--s-${id})`;
+  const pct = (a, b) => (b > 0 ? Math.min(100, (a / b) * 100) : 0);
+  const blob = (id) => "/_blob/" + id;
+  const videoTool = () => (settings.pipeline && settings.pipeline.video) || "Kling 3.0";
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $("toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.hidden = true), 2800);
+  }
+  function writeFailed(e) {
+    if (e && e.code === "invalid_argument") { canWrite = false; applyWriteState(); toast("You can view this board but not change it."); }
+    else if (e && e.code === "quota_exceeded") toast("Storage is full. Delete some shots or purchases, then try again.");
+    else toast("Couldn't save. Check your connection and try again.");
+  }
+  function sampleMessage(e) {
+    const c = e && e.code;
+    if (c === "cancelled") return "Stopped.";
+    if (c === "not_granted" || c === "sampling_disabled" || c === "not_declared") return "Claude isn't allowed for this page, so this feature is off.";
+    if (c === "rate_limited") return "Too many requests right now. Try again in a minute.";
+    if (c === "session_expired") return "Your session expired. Sign in again, then retry.";
+    if (c === "invalid_json") return "Claude's answer couldn't be read. Try again.";
+    if (c === "prompt_too_large") return "The script is too long for one pass. Break down one scene at a time.";
+    if (c === "refused") return "Claude declined this request. Try rewording the script or shot.";
+    return "Something went wrong reaching Claude. Try again.";
+  }
+  function uploadMessage(e) {
+    const c = e && e.code;
+    if (c === "too_large") return "That file is over 20 MB. Export a smaller version (for example 720p) and try again.";
+    if (c === "unsupported_type") return "Use PNG, JPEG or WebP for keyframes and MP4 or WebM for takes.";
+    if (c === "quota_or_state") return "Storage for this board is full. Remove unused takes first.";
+    if (c === "rate_limited") return "Uploading too fast. Wait a moment and try again.";
+    return "Upload failed. Try again.";
+  }
+
+  // ---------- Helpers ----------
+  function sortedShots() { return [...shots].sort((a, b) => num(a.scene) - num(b.scene) || num(a.no) - num(b.no)); }
+  function slug(s) { return "SC" + String(num(s.scene, 1)).padStart(2, "0") + " · SH" + String(num(s.no, 1)).padStart(2, "0"); }
+  function castFor(names) {
+    const list = String(names || "").split(/[,&]/).map((n) => n.trim().toLowerCase()).filter(Boolean);
+    return cast.filter((c) => list.includes(String(c.name || "").toLowerCase()));
+  }
+  function castBlock(chars) {
+    const list = chars && chars.length ? chars : cast;
+    return list.length ? list.map((c) => `- ${c.name}: ${c.look || "(no look written yet)"}`).join("\n") : "(no cast defined)";
+  }
+  function selectedTake(s) { return s.selectedTake ? takes.find((t) => t.id === s.selectedTake) : null; }
+
+  // ---------- Rendering ----------
+  function renderGauges() {
+    const runtime = shots.reduce((a, s) => a + num(s.duration), 0);
+    const target = num(settings.targetSeconds, 300);
+    $("gRuntime").innerHTML = `${tc(runtime)} <small>/ ${tc(target)}</small>`;
+    const mr = $("mRuntime"); mr.style.width = pct(runtime, target) + "%"; mr.className = runtime > target * 1.1 ? "over" : "";
+    $("nRuntime").textContent = runtime > target ? `${Math.round(runtime - target)} s over target` : `${Math.round(target - runtime)} s left to plan`;
+
+    const done = shots.filter((s) => s.status === "approved" || s.status === "final").length;
+    $("gShots").innerHTML = `${done} <small>/ ${shots.length}</small>`;
+    $("mShots").style.width = pct(done, shots.length) + "%";
+
+    const vt = videoTool();
+    const used = shots.reduce((a, s) => a + num(s.credits), 0);
+    const bought = spend.filter((p) => p.tool === vt).reduce((a, p) => a + num(p.credits), 0);
+    $("gCredits").innerHTML = `${used.toLocaleString()} <small>/ ${bought.toLocaleString()}</small>`;
+    const mc = $("mCredits"); mc.style.width = pct(used, bought || 1) + "%";
+    mc.className = bought && used > bought ? "over" : bought && used > bought * 0.8 ? "warn" : "";
+    const left = bought - used;
+    $("nCredits").textContent = !bought ? `Log a ${vt} purchase to track the balance`
+      : left >= 0 ? `${left.toLocaleString()} left ≈ ${Math.floor(left / Math.max(1, num(settings.draftRate, 6)))} s of drafts`
+      : `${Math.abs(left).toLocaleString()} over what you bought`;
+
+    const spent = spend.reduce((a, p) => a + num(p.amount), 0);
+    const budget = num(settings.budget, 290);
+    $("gSpend").innerHTML = `${money(spent)} <small>/ ${money(budget)}</small>`;
+    const ms = $("mSpend"); ms.style.width = pct(spent, budget) + "%"; ms.className = spent > budget ? "over" : spent > budget * 0.8 ? "warn" : "";
+    $("nSpend").textContent = spent > budget ? `${money(spent - budget)} over budget` : `${money(budget - spent)} remaining`;
+  }
+
+  function renderStatusStrip() {
+    const total = shots.length || 1;
+    const count = (id) => shots.filter((s) => (s.status || "script") === id).length;
+    $("pipeBar").innerHTML = STATUSES.map((st) => { const n = count(st.id); return n ? `<span style="width:${(n / total) * 100}%;background:${statusColor(st.id)}" title="${st.label}: ${n}"></span>` : ""; }).join("");
+    $("pipeLegend").innerHTML = STATUSES.map((st) => `<span><i class="dot" style="background:${statusColor(st.id)}"></i>${st.label} <span class="mono">${count(st.id)}</span></span>`).join("");
+  }
+
+  function renderFilters() {
+    $("filters").innerHTML = [{ id: "all", label: "All" }, ...STATUSES].map((o) => `<button class="chip" data-filter="${o.id}" aria-pressed="${filter === o.id}">${o.label}</button>`).join("");
+  }
+
+  function thumbHtml(s) {
+    if (s.keyframeAsset) return `<img class="thumb" src="${blob(s.keyframeAsset)}" alt="" loading="lazy">`;
+    return `<span class="thumb none">no frame</span>`;
+  }
+
+  function renderShots() {
+    const body = $("shotRows");
+    $("clearEx").hidden = !canWrite || !(shots.some((s) => s.example) || cast.some((c) => c.example));
+    if (!db) { body.innerHTML = `<tr><td colspan="10"><div class="empty">${esc(dbMessage)}</div></td></tr>`; return; }
+    if (!shots.length) {
+      body.innerHTML = `<tr><td colspan="10"><div class="empty"><strong>No shots yet.</strong><span>Paste your script under Script &amp; cast and let Claude break it into shots, or add them one at a time. A 5-minute film is roughly 50–70 shots.</span>${canWrite ? '<button class="btn primary" data-add>+ Add the first shot</button>' : ""}</div></td></tr>`;
+      return;
+    }
+    const list = sortedShots().filter((s) => filter === "all" || (s.status || "script") === filter);
+    if (!list.length) { body.innerHTML = `<tr><td colspan="10"><div class="empty">No shots with this status.</div></td></tr>`; return; }
+    const st = Object.fromEntries(STATUSES.map((s) => [s.id, s.label]));
+    body.innerHTML = list.map((s) => {
+      const status = s.status || "script";
+      const sel = selectedTake(s);
+      return `<tr class="shot" data-id="${esc(s.id)}" tabindex="0">
+        <td><span class="slug">${slug(s)}</span>${s.example ? '<span class="ex">Example</span>' : ""}</td>
+        <td><span class="frame">${esc(s.framing || "MS")}</span></td>
+        <td>${thumbHtml(s)}</td>
+        <td class="action">${esc(s.action) || '<span class="dialogue">No action written</span>'}${s.dialogue ? `<div class="dialogue">“${esc(s.dialogue)}”</div>` : ""}</td>
+        <td class="num">${num(s.duration)}s</td>
+        <td>${esc(s.tool || videoTool())}</td>
+        <td><span class="pill" style="--c:${statusColor(status)}">${st[status] || esc(status)}</span></td>
+        <td class="num">${num(s.takes)}${sel ? ' <span title="Take selected for the cut">✓</span>' : ""}</td>
+        <td class="num">${num(s.credits).toLocaleString()}</td>
+        <td><div class="take-btns">${canWrite ? `<button class="btn small" data-take="draft" data-id="${esc(s.id)}" title="Log a 720p draft take">+ Draft</button><button class="btn small" data-take="final" data-id="${esc(s.id)}" title="Log a 1080p final take">+ Final</button>` : "—"}</div></td>
+      </tr>`;
+    }).join("");
+  }
+
+  function renderRateNote() {
+    $("rateNote").textContent = `“+ Draft” logs one take at ${num(settings.draftRate)} credits/s and “+ Final” at ${num(settings.finalRate)} credits/s, times the shot's duration. Change the rates under Pipeline → Production settings.`;
+  }
+
+  function planList() {
+    const plan = Array.isArray(settings.plan) && settings.plan.length ? settings.plan : DEFAULT_SETTINGS.plan;
+    const extra = [...new Set(spend.map((p) => p.tool).filter((t) => t && !plan.some((x) => x.tool === t)))];
+    return [...plan, ...extra.map((t) => ({ tool: t, planned: 0, note: "unplanned" }))];
+  }
+
+  function renderBudget() {
+    const plan = planList();
+    $("planRows").innerHTML = plan.map((p) => {
+      const spent = spend.filter((s) => s.tool === p.tool).reduce((a, s) => a + num(s.amount), 0);
+      const cls = spent > num(p.planned) ? "over" : spent > num(p.planned) * 0.8 ? "warn" : "";
+      return `<div class="plan-row"><span class="t">${esc(p.tool)}<small>${esc(p.note || "")}</small></span><span class="v">${money(spent)} / ${money(p.planned)}</span><div class="meter"><b class="${cls}" style="width:${pct(spent, num(p.planned) || (spent ? spent : 1))}%"></b></div></div>`;
+    }).join("");
+    const sel = $("spTool"), cur = sel.value;
+    sel.innerHTML = [...plan.map((p) => p.tool), "Other"].filter((v, i, a) => a.indexOf(v) === i).map((t) => `<option>${esc(t)}</option>`).join("");
+    if (cur) sel.value = cur;
+    const rows = [...spend].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    $("spendRows").innerHTML = rows.length ? rows.map((p) => `<tr>
+        <td class="num">${esc(p.date)}</td><td>${esc(p.tool)}</td><td>${esc(p.item)}</td>
+        <td class="num">${money(p.amount)}</td><td class="num">${p.credits ? num(p.credits).toLocaleString() : "—"}</td>
+        <td>${canWrite ? `<button class="btn small danger" data-del-spend="${esc(p.id)}">Remove</button>` : ""}</td></tr>`).join("")
+      : `<tr><td colspan="6"><div class="empty">No purchases logged yet. Add each subscription or credit pack when you buy it.</div></td></tr>`;
+  }
+
+  function renderPipeline() {
+    const pl = settings.pipeline || {};
+    $("stageList").innerHTML = STAGES.map((st, i) => `<div class="stage">
+      <span class="n">${i + 1}</span>
+      <span class="what"><b>${st.label}</b><span>${st.desc}</span></span>
+      <select data-stage="${st.id}" aria-label="${st.label} tool" ${canWrite ? "" : "disabled"}>${st.options.map((o) => `<option ${o === (pl[st.id] || st.options[0]) ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>
+      <select aria-label="${st.label} mode" disabled><option>Manual (upload)</option><option>Automated (Stage 2)</option></select>
+    </div>`).join("");
+  }
+
+  function renderSettingsForm() {
+    const active = document.activeElement;
+    if (!(active && active.closest && active.closest("#settingsForm"))) {
+      $("stTarget").value = num(settings.targetSeconds, 300);
+      $("stBudget").value = num(settings.budget, 290);
+      $("stDraft").value = num(settings.draftRate, 6);
+      $("stFinal").value = num(settings.finalRate, 12);
+      $("stStyle").value = settings.style || "";
+    }
+    if (active !== $("filmTitle")) $("filmTitle").value = settings.title || DEFAULT_SETTINGS.title;
+  }
+
+  function renderCast() {
+    $("castList").innerHTML = cast.length ? [...cast].sort((a, b) => String(a.name).localeCompare(String(b.name))).map((c) =>
+      `<div class="cast-card" data-cast="${esc(c.id)}" tabindex="0"><b>${esc(c.name)}${c.example ? '<span class="ex">Example</span>' : ""}</b><span>${esc(c.look) || "No look written yet"}</span>${c.voice ? `<span>Voice: ${esc(c.voice)}</span>` : ""}</div>`).join("")
+      : `<p class="muted" style="font-size:13.5px">No characters yet. Add your main characters before writing prompts.</p>`;
+  }
+
+  function renderScript() {
+    if (document.activeElement !== $("scriptText") && $("scriptText").dataset.dirty !== "1") $("scriptText").value = script;
+  }
+
+  function renderDraft() {
+    $("draftPanel").hidden = !draftShots.length;
+    if (!draftShots.length) return;
+    const secs = draftShots.reduce((a, s) => a + num(s.duration), 0);
+    $("draftTitle").textContent = `${draftShots.length} proposed shots · ${tc(secs)}`;
+    $("draftRows").innerHTML = draftShots.map((s) => `<tr>
+      <td class="slug">${slug(s)}</td><td><span class="frame">${esc(s.framing)}</span></td><td class="num">${num(s.duration)}s</td>
+      <td class="action">${esc(s.action)}${s.dialogue ? `<div class="dialogue">“${esc(s.dialogue)}”</div>` : ""}</td>
+      <td style="font-size:13px;max-width:40ch">${esc(s.keyframePrompt)}</td></tr>`).join("");
+  }
+
+  function renderAll() {
+    renderGauges(); renderStatusStrip(); renderFilters(); renderShots(); renderRateNote(); renderBudget();
+    renderPipeline(); renderSettingsForm(); renderCast(); renderScript(); renderDraft(); renderCut(false);
+    if (editingId) renderMedia();
+  }
+
+  function applyWriteState() {
+    $("addShot").hidden = !canWrite;
+    $("filmTitle").readOnly = !canWrite;
+    document.querySelectorAll("#spendForm button, #settingsForm button, #castForm button, #edSave, #saveScript, #acceptDraft").forEach((b) => (b.disabled = !canWrite));
+    renderAll();
+  }
+
+  // ---------- Shot editor ----------
+  function fillSelect(el, items) { el.innerHTML = items.map((i) => typeof i === "string" ? `<option>${esc(i)}</option>` : `<option value="${i.id}">${esc(i.label)}</option>`).join(""); }
+  fillSelect($("edFrame"), FRAMES); fillSelect($("edTool"), TOOLS); fillSelect($("edStatus"), STATUSES);
+
+  function openEditor(id) {
+    editingId = id;
+    const s = id ? shots.find((x) => x.id === id) : null;
+    const last = sortedShots().slice(-1)[0];
+    const d = s || { scene: last ? num(last.scene, 1) : 1, no: last ? num(last.no) + 1 : 1, framing: "MS", duration: 5, tool: videoTool(), status: "script", takes: 0, credits: 0 };
+    $("edTitle").textContent = s ? `Edit ${slug(s)}` : "New shot";
+    $("edScene").value = num(d.scene, 1); $("edNo").value = num(d.no, 1);
+    $("edFrame").value = d.framing || "MS"; $("edDur").value = num(d.duration, 5);
+    $("edTool").value = TOOLS.includes(d.tool) ? d.tool : "Other"; $("edStatus").value = d.status || "script";
+    $("edChars").value = d.characters || ""; $("edAction").value = d.action || ""; $("edDialogue").value = d.dialogue || "";
+    $("edKey").value = d.keyframePrompt || ""; $("edMotion").value = d.motionPrompt || "";
+    $("edTakes").value = num(d.takes); $("edCredits").value = num(d.credits); $("edNotes").value = d.notes || "";
+    $("delWrap").innerHTML = s && canWrite ? '<button class="btn danger" id="edDelete" type="button">Delete shot</button>' : "";
+    $("suggestStatus").textContent = "";
+    $("suggestBtn").hidden = !sample || !canWrite;
+    $("mediaArea").hidden = !s;
+    $("mediaArea").style.display = s ? "grid" : "none";
+    renderMedia();
+    $("scrim").hidden = false;
+    setTimeout(() => $("edAction").focus(), 30);
+  }
+  function closeEditor() { $("scrim").hidden = true; editingId = null; if (suggestCtl) suggestCtl.abort(); }
+
+  function renderMedia() {
+    const s = editingId ? shots.find((x) => x.id === editingId) : null;
+    if (!s) return;
+    if (document.activeElement !== $("edTakes")) $("edTakes").value = num(s.takes);
+    if (document.activeElement !== $("edCredits")) $("edCredits").value = num(s.credits);
+    const canUpload = !!assets && canWrite;
+    $("kfBtns").hidden = !canUpload;
+    $("takeBtns").hidden = !canUpload;
+    if (s.keyframeAsset) { $("kfImg").src = blob(s.keyframeAsset); $("kfImg").hidden = false; $("kfStatus").textContent = ""; $("kfRemove").hidden = !canUpload; }
+    else { $("kfImg").hidden = true; $("kfRemove").hidden = true; if (!$("kfStatus").dataset.busy) $("kfStatus").textContent = canUpload ? "No keyframe yet. Generate it in your image tool, then upload it here." : "No keyframe yet."; }
+    const mine = takes.filter((t) => t.shotId === s.id).sort((a, b) => String(a.createdAt).localeCompare(String(b.createdAt)));
+    const list = $("takeList");
+    const existing = new Set([...list.querySelectorAll("[data-take-id]")].map((n) => n.dataset.takeId));
+    const wanted = mine.map((t) => t.id);
+    const same = existing.size === wanted.length && wanted.every((id) => existing.has(id));
+    if (!same) {
+      list.innerHTML = mine.length ? mine.map((t, i) => `<div class="take" data-take-id="${esc(t.id)}">
+          <video src="${blob(t.asset)}" controls preload="metadata" playsinline></video>
+          <div class="meta"><span class="mono">T${i + 1} · ${esc(t.kind)} · ${num(t.credits)} cr</span>
+          <span class="row">${canWrite ? `<button class="btn small" data-select-take="${esc(t.id)}"></button><button class="btn small danger" data-remove-take="${esc(t.id)}">✕</button>` : ""}</span></div></div>`).join("")
+        : `<p class="muted" style="font-size:13px;margin:0">No uploaded takes yet.</p>`;
+    }
+    list.querySelectorAll(".take").forEach((n) => {
+      const on = n.dataset.takeId === s.selectedTake;
+      n.classList.toggle("sel", on);
+      const b = n.querySelector("[data-select-take]"); if (b) b.textContent = on ? "In the cut" : "Use in cut";
+    });
+  }
+
+  async function saveEditor() {
+    if (!db || !canWrite) return;
+    const prev = editingId ? shots.find((x) => x.id === editingId) : null;
+    const data = {
+      ...(prev ? stripId(prev) : {}),
+      scene: num($("edScene").value, 1), no: num($("edNo").value, 1), framing: $("edFrame").value,
+      duration: num($("edDur").value, 5), tool: $("edTool").value, status: $("edStatus").value,
+      characters: $("edChars").value.trim(), action: $("edAction").value.trim(), dialogue: $("edDialogue").value.trim(),
+      keyframePrompt: $("edKey").value.trim(), motionPrompt: $("edMotion").value.trim(),
+      takes: num($("edTakes").value), credits: num($("edCredits").value), notes: $("edNotes").value.trim(),
+      example: prev ? !!prev.example : false,
+    };
+    const ref = editingId ? db.collection("shots").doc(editingId) : db.collection("shots").doc();
+    try { await ref.set(data); toast(prev ? "Shot saved" : "Shot added"); if (!prev) openEditor(ref.id); }
+    catch (e) { writeFailed(e); }
+  }
+  function stripId(o) { const c = { ...o }; delete c.id; return c; }
+
+  async function deleteShot(id) {
+    if (!db || !id) return;
+    try {
+      for (const t of takes.filter((x) => x.shotId === id)) await db.collection("takes").doc(t.id).delete();
+      await db.collection("shots").doc(id).delete();
+      closeEditor(); toast("Shot deleted");
+    } catch (e) { writeFailed(e); }
+  }
+
+  const busy = new Set();
+  async function logTake(id, kind) {
+    if (!db || busy.has(id)) return;
+    const s = shots.find((x) => x.id === id); if (!s) return;
+    const cost = takeCost(s, kind);
+    const patch = { takes: num(s.takes) + 1, credits: num(s.credits) + cost };
+    if (["script", "keyframe"].includes(s.status || "script")) patch.status = "animating";
+    busy.add(id);
+    try { await db.collection("shots").doc(id).update(patch); toast(`${slug(s)}: ${kind} take logged, ${cost} credits`); }
+    catch (e) { writeFailed(e); }
+    finally { busy.delete(id); }
+  }
+  function takeCost(s, kind) { return Math.round(num(s.duration, 5) * (kind === "final" ? num(settings.finalRate, 12) : num(settings.draftRate, 6))); }
+
+  async function uploadKeyframe(file) {
+    const s = shots.find((x) => x.id === editingId); if (!s || !assets || !file) return;
+    $("kfStatus").dataset.busy = "1"; $("kfStatus").textContent = "Uploading keyframe…";
+    try {
+      const res = await assets.upload(file);
+      const old = s.keyframeAsset;
+      const patch = { keyframeAsset: res.id };
+      if ((s.status || "script") === "script") patch.status = "keyframe";
+      await db.collection("shots").doc(s.id).update(patch);
+      if (old) assets.delete(old).catch(() => {});
+      $("kfStatus").textContent = "Keyframe uploaded.";
+    } catch (e) { $("kfStatus").textContent = e && e.code && !["invalid_argument", "quota_exceeded"].includes(e.code) ? uploadMessage(e) : "Couldn't save the keyframe."; }
+    finally { delete $("kfStatus").dataset.busy; $("kfFile").value = ""; }
+  }
+
+  async function removeKeyframe() {
+    const s = shots.find((x) => x.id === editingId); if (!s || !s.keyframeAsset) return;
+    try { await db.collection("shots").doc(s.id).update({ keyframeAsset: null }); if (assets) assets.delete(s.keyframeAsset).catch(() => {}); toast("Keyframe removed"); }
+    catch (e) { writeFailed(e); }
+  }
+
+  async function uploadTake(file) {
+    const s = shots.find((x) => x.id === editingId); if (!s || !assets || !file) return;
+    const kind = $("takeKind").value;
+    $("takeStatus").textContent = "Uploading take…";
+    try {
+      const res = await assets.upload(file);
+      const cost = takeCost(s, kind);
+      const ref = db.collection("takes").doc();
+      await ref.set({ shotId: s.id, asset: res.id, kind, credits: cost, createdAt: new Date().toISOString(), fileName: String(file.name || "").slice(0, 120) });
+      const patch = { takes: num(s.takes) + 1, credits: num(s.credits) + cost };
+      if (!s.selectedTake) patch.selectedTake = ref.id;
+      if (["script", "keyframe"].includes(s.status || "script")) patch.status = "animating";
+      await db.collection("shots").doc(s.id).update(patch);
+      $("takeStatus").textContent = `Take uploaded and ${cost} credits logged.`;
+    } catch (e) { $("takeStatus").textContent = e && e.code && !["invalid_argument", "quota_exceeded"].includes(e.code) ? uploadMessage(e) : "Couldn't save the take."; }
+    finally { $("takeFile").value = ""; }
+  }
+
+  async function selectTake(takeId) {
+    const s = shots.find((x) => x.id === editingId); if (!s) return;
+    try { await db.collection("shots").doc(s.id).update({ selectedTake: takeId }); toast("Take will play in the rough cut"); }
+    catch (e) { writeFailed(e); }
+  }
+
+  async function removeTake(takeId, btn) {
+    if (btn.dataset.armed !== "1") { btn.dataset.armed = "1"; btn.textContent = "Delete?"; return; }
+    const t = takes.find((x) => x.id === takeId); const s = shots.find((x) => x.id === editingId);
+    if (!t || !s) return;
+    try {
+      await db.collection("takes").doc(takeId).delete();
+      if (s.selectedTake === takeId) await db.collection("shots").doc(s.id).update({ selectedTake: null });
+      if (assets && t.asset) assets.delete(t.asset).catch(() => {});
+      toast("Take removed. Its credits stay logged.");
+    } catch (e) { writeFailed(e); }
+  }
+
+  // ---------- Claude: suggest prompts ----------
+  let suggestCtl = null;
+  async function suggestPrompts() {
+    if (!sample) return;
+    const chars = castFor($("edChars").value);
+    const prompt = `You write prompts for an AI-generated 3D animated short film.
+Write two prompts for ONE shot:
+1. keyframePrompt: an image prompt for the shot's first frame. Describe framing, the characters (use their locked looks exactly as written, including relative height), pose, setting, lighting and expression. Do not include the global style text; it is appended later. Do not name any studio or brand.
+2. motionPrompt: a short image-to-video prompt: the motion within the shot and one camera move. Under 35 words.
+
+Shot: ${slug({ scene: $("edScene").value, no: $("edNo").value })}, framing ${$("edFrame").value}, ${$("edDur").value} seconds.
+Characters in shot: ${$("edChars").value || "none named"}
+Action: ${$("edAction").value || "(not written)"}
+Dialogue: ${$("edDialogue").value || "(none)"}
+Current keyframe prompt (improve it if present): ${$("edKey").value || "(none)"}
+
+Locked character looks:
+${castBlock(chars)}
+
+Global style (for context only): ${settings.style || ""}
+
+Reply with only JSON: {"keyframePrompt": "...", "motionPrompt": "..."}`;
+    if (suggestCtl) suggestCtl.abort();
+    suggestCtl = new AbortController();
+    const btn = $("suggestBtn"); btn.disabled = true;
+    $("suggestStatus").textContent = "Thinking…";
+    try {
+      const out = await sample.json(prompt, { signal: suggestCtl.signal, cache: false });
+      if (out && typeof out.keyframePrompt === "string") $("edKey").value = out.keyframePrompt.trim();
+      if (out && typeof out.motionPrompt === "string") $("edMotion").value = out.motionPrompt.trim();
+      $("suggestStatus").textContent = "Suggested. Review, then Save shot.";
+    } catch (e) { $("suggestStatus").textContent = e.code === "cancelled" ? "" : sampleMessage(e); if (["not_granted", "sampling_disabled", "not_declared"].includes(e.code)) hideSample(); }
+    finally { btn.disabled = false; suggestCtl = null; }
+  }
+
+  // ---------- Claude: script breakdown ----------
+  let breakdownCtl = null;
+  async function breakdown() {
+    if (!sample) return;
+    const text = $("scriptText").value.trim();
+    if (text.length < 40) { $("breakdownStatus").textContent = "Write or paste a script first (at least a few lines)."; return; }
+    const target = num(settings.targetSeconds, 300);
+    const prompt = `You are a storyboard artist breaking a script for a ${Math.round(target / 60)}-minute 3D animated short into shots for AI video generation.
+
+Rules:
+- Every shot is 3 to 8 seconds long (use 4-6 seconds for most). Aim for a total close to ${target} seconds for a full script, or proportionally less for a partial one.
+- Number scenes from 1 in script order; number shots from 1 within each scene.
+- framing is one of: ${FRAMES.join(", ")}.
+- Prefer medium shots and close-ups; keep at most 2 characters in most shots; avoid crowds and complex hand actions.
+- characters: comma-separated names exactly as in the cast list, or "" if none.
+- action: one plain sentence of what we see. dialogue: the exact spoken line for this shot, or "".
+- keyframePrompt: a first-frame image prompt with framing, characters (using their locked looks, including relative height), pose, setting, lighting, expression. No style words, no studio or brand names.
+- motionPrompt: under 30 words: motion within the shot plus one camera move.
+
+Cast (locked looks):
+${castBlock()}
+
+Script:
+"""
+${text.slice(0, 60000)}
+"""
+
+Reply with only a JSON array of shot objects:
+[{"scene":1,"no":1,"framing":"WS","duration":5,"characters":"","action":"...","dialogue":"","keyframePrompt":"...","motionPrompt":"..."}]`;
+    breakdownCtl = new AbortController();
+    $("breakdown").disabled = true; $("stopBreakdown").hidden = false;
+    $("breakdownStatus").textContent = "Claude is reading the script. This usually takes 30–90 seconds…";
+    try {
+      const out = await sample.json(prompt, { signal: breakdownCtl.signal, cache: false, modelTier: "default" });
+      const arr = Array.isArray(out) ? out : Array.isArray(out && out.shots) ? out.shots : [];
+      draftShots = arr.filter((s) => s && typeof s === "object").slice(0, 200).map((s, i) => ({
+        scene: Math.max(1, Math.round(num(s.scene, 1))), no: Math.max(1, Math.round(num(s.no, i + 1))),
+        framing: FRAMES.includes(String(s.framing).toUpperCase()) ? String(s.framing).toUpperCase() : "MS",
+        duration: Math.min(15, Math.max(2, num(s.duration, 5))),
+        characters: String(s.characters || "").slice(0, 200), action: String(s.action || "").slice(0, 600), dialogue: String(s.dialogue || "").slice(0, 600),
+        keyframePrompt: String(s.keyframePrompt || "").slice(0, 1500), motionPrompt: String(s.motionPrompt || "").slice(0, 600),
+      }));
+      $("breakdownStatus").textContent = draftShots.length ? "Review the proposed shots below, then add them to the shot list." : "Claude didn't return any shots. Try again or shorten the script.";
+      renderDraft();
+      if (draftShots.length) $("draftPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (e) { $("breakdownStatus").textContent = sampleMessage(e); if (["not_granted", "sampling_disabled", "not_declared"].includes(e.code)) hideSample(); }
+    finally { $("breakdown").disabled = false; $("stopBreakdown").hidden = true; breakdownCtl = null; }
+  }
+
+  async function acceptDraft() {
+    if (!db || !canWrite || !draftShots.length) return;
+    const btn = $("acceptDraft"); btn.disabled = true;
+    try {
+      if ($("replaceEx").checked) await removeExamples(true);
+      const vt = videoTool();
+      let n = 0;
+      for (const s of draftShots) {
+        await db.collection("shots").doc().set({ ...s, tool: vt, status: "script", takes: 0, credits: 0, notes: "", example: false });
+        n++; btn.textContent = `Adding ${n}/${draftShots.length}…`;
+      }
+      draftShots = []; renderDraft();
+      toast(`Added ${n} shots`);
+      switchTab("shots");
+    } catch (e) { writeFailed(e); }
+    finally { btn.disabled = false; btn.textContent = "Add to shot list"; }
+  }
+
+  function hideSample() { sample = null; $("breakdown").hidden = true; $("suggestBtn").hidden = true; }
+
+  async function removeExamples(silent) {
+    if (!db) return;
+    const exShots = shots.filter((s) => s.example), exCast = cast.filter((c) => c.example);
+    for (const s of exShots) {
+      for (const t of takes.filter((x) => x.shotId === s.id)) await db.collection("takes").doc(t.id).delete();
+      await db.collection("shots").doc(s.id).delete();
+    }
+    for (const c of exCast) await db.collection("characters").doc(c.id).delete();
+    if (!silent) toast(`Removed ${exShots.length} example shots and ${exCast.length} example characters`);
+  }
+
+  // ---------- Rough cut ----------
+  const rc = { i: 0, playing: false, timer: null, started: 0, segs: [] };
+  function cutSegments() {
+    return sortedShots().map((s) => {
+      const t = selectedTake(s);
+      if (t && t.asset) return { shot: s, type: "video", src: blob(t.asset), dur: num(s.duration, 5) };
+      if (s.keyframeAsset) return { shot: s, type: "still", src: blob(s.keyframeAsset), dur: num(s.duration, 5) };
+      return { shot: s, type: "slate", dur: num(s.duration, 5) };
+    });
+  }
+  function renderCut(force) {
+    const segs = cutSegments();
+    const key = segs.map((g) => g.shot.id + g.type + (g.src || "") + g.dur).join("|");
+    if (!force && key === rc.key) return;
+    rc.key = key; rc.segs = segs;
+    if (rc.i >= segs.length) rc.i = Math.max(0, segs.length - 1);
+    const total = segs.reduce((a, g) => a + g.dur, 0) || 1;
+    $("rcTimeline").innerHTML = segs.map((g, i) => `<button class="${g.type}${i === rc.i ? " on" : ""}" style="flex:${g.dur} 1 0" data-seg="${i}" title="${slug(g.shot)} · ${g.type}" aria-label="${slug(g.shot)}"></button>`).join("");
+    if (!rc.playing) showSeg(rc.i, false);
+    updateClock(total);
+  }
+  function updateClock(total) {
+    const segs = rc.segs; const t = total || segs.reduce((a, g) => a + g.dur, 0);
+    const before = segs.slice(0, rc.i).reduce((a, g) => a + g.dur, 0);
+    $("rcClock").textContent = `${tc(before)} / ${tc(t)}`;
+  }
+  function showSeg(i, autoplay) {
+    clearTimeout(rc.timer);
+    const v = $("rcVideo"), img = $("rcImg"), card = $("rcCard");
+    const g = rc.segs[i];
+    if (!g) {
+      v.hidden = true; img.hidden = true; card.hidden = false;
+      card.innerHTML = `<span class="slug">NO SHOTS</span><p>Add shots to see the rough cut.</p>`;
+      $("rcBadge").textContent = "—"; return;
+    }
+    rc.i = i;
+    $("rcTimeline").querySelectorAll("button").forEach((b, j) => b.classList.toggle("on", j === i));
+    $("rcBadge").textContent = `${slug(g.shot)} · ${g.type === "video" ? "take" : g.type === "still" ? "keyframe" : "slate"}`;
+    updateClock();
+    if (g.type === "video") {
+      img.hidden = true; card.hidden = true; v.hidden = false;
+      if (v.getAttribute("src") !== g.src) v.src = g.src;
+      v.currentTime = 0;
+      if (autoplay) { v.play().catch(() => { rc.timer = setTimeout(() => advance(), g.dur * 1000); }); } else v.pause();
+    } else {
+      v.pause(); v.hidden = true;
+      if (g.type === "still") { img.src = g.src; img.hidden = false; card.hidden = true; }
+      else { img.hidden = true; card.hidden = false; card.innerHTML = `<span class="slug">${slug(g.shot)} · ${esc(g.shot.framing || "MS")} · ${num(g.dur)}s</span><p>${esc(g.shot.action || "No action written")}</p>${g.shot.dialogue ? `<p style="opacity:.75;font-style:italic">“${esc(g.shot.dialogue)}”</p>` : ""}`; }
+      if (autoplay) rc.timer = setTimeout(() => advance(), g.dur * 1000);
+    }
+  }
+  function advance() {
+    if (rc.i + 1 < rc.segs.length) showSeg(rc.i + 1, rc.playing);
+    else { rc.playing = false; rc.ended = true; $("rcPlay").textContent = "▶︎ Play"; }
+  }
+  function togglePlay() {
+    if (!rc.segs.length) return;
+    rc.playing = !rc.playing;
+    $("rcPlay").textContent = rc.playing ? "❚❚ Pause" : "▶︎ Play";
+    if (rc.playing) { if (rc.ended) { rc.ended = false; rc.i = 0; } showSeg(rc.i, true); }
+    else { clearTimeout(rc.timer); $("rcVideo").pause(); }
+  }
+  $("rcVideo").addEventListener("ended", () => { if (rc.playing) advance(); });
+  $("rcPlay").addEventListener("click", togglePlay);
+  $("rcPrev").addEventListener("click", () => showSeg(Math.max(0, rc.i - 1), rc.playing));
+  $("rcNext").addEventListener("click", () => showSeg(Math.min(rc.segs.length - 1, rc.i + 1), rc.playing));
+  $("rcTimeline").addEventListener("click", (e) => { const b = e.target.closest("[data-seg]"); if (b) showSeg(num(b.dataset.seg), rc.playing); });
+
+  // ---------- Export ----------
+  function boardJson() {
+    return JSON.stringify({
+      format: "ai-film-production-board", version: 1, exportedAt: new Date().toISOString(),
+      settings: stripId(settings), script, characters: cast.map(stripIdKeep), shots: sortedShots().map(stripIdKeep), takes: takes.map(stripIdKeep), purchases: spend.map(stripIdKeep),
+    }, null, 2);
+  }
+  function stripIdKeep(o) { return { ...o }; }
+  function csvCell(v) { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+  function shotsCsv() {
+    const cols = ["scene", "no", "framing", "duration", "characters", "action", "dialogue", "keyframePrompt", "motionPrompt", "tool", "status", "takes", "credits", "notes"];
+    return [cols.join(","), ...sortedShots().map((s) => cols.map((c) => csvCell(s[c])).join(","))].join("\n");
+  }
+  async function exportFile(name, data) {
+    if (!downloads) { $("exportStatus").textContent = "Saving files isn't available in this view."; return; }
+    try { await downloads.save({ filename: name, data }); $("exportStatus").textContent = "Saved."; }
+    catch (e) { $("exportStatus").textContent = e.code === "declined" ? "" : e.code === "rate_limited" ? "A save is already waiting for your answer." : "Couldn't save the file here."; }
+  }
+  const fileBase = () => (settings.title || "film").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "film";
+  $("exportJson").addEventListener("click", () => exportFile(`${fileBase()}-board.json`, boardJson()));
+  $("exportCsv").addEventListener("click", () => exportFile(`${fileBase()}-shots.csv`, shotsCsv()));
+
+  // ---------- Events ----------
+  function switchTab(name) {
+    document.querySelectorAll(".tab").forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === name)));
+    ["shots", "script", "cut", "budget", "pipeline"].forEach((v) => ($("view-" + v).hidden = v !== name));
+    if (name !== "cut" && rc.playing) togglePlay();
+    try { localStorage.setItem("board-tab", name); } catch {}
+  }
+  $("tabs").addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) switchTab(b.dataset.tab); });
+  $("filters").addEventListener("click", (e) => { const b = e.target.closest("[data-filter]"); if (!b) return; filter = b.dataset.filter; renderFilters(); renderShots(); });
+  $("addShot").addEventListener("click", () => openEditor(null));
+  $("shotRows").addEventListener("click", (e) => {
+    const take = e.target.closest("[data-take]");
+    if (take) { e.stopPropagation(); logTake(take.dataset.id, take.dataset.take); return; }
+    if (e.target.closest("[data-add]")) { openEditor(null); return; }
+    const row = e.target.closest("tr.shot"); if (row) openEditor(row.dataset.id);
+  });
+  $("shotRows").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches("tr.shot")) openEditor(e.target.dataset.id); });
+  $("clearEx").addEventListener("click", async () => { try { await removeExamples(false); } catch (e) { writeFailed(e); } });
+
+  $("edCancel").addEventListener("click", closeEditor);
+  $("edSave").addEventListener("click", saveEditor);
+  $("suggestBtn").addEventListener("click", suggestPrompts);
+  $("scrim").addEventListener("click", (e) => { if (e.target === $("scrim")) closeEditor(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("scrim").hidden) closeEditor(); });
+  $("delWrap").addEventListener("click", (e) => {
+    if (e.target.id === "edDelete") $("delWrap").innerHTML = '<span class="confirm">Delete this shot and its takes? <button class="btn small danger" id="edDelYes" type="button">Delete</button><button class="btn small" id="edDelNo" type="button">Keep</button></span>';
+    else if (e.target.id === "edDelYes") deleteShot(editingId);
+    else if (e.target.id === "edDelNo") $("delWrap").innerHTML = '<button class="btn danger" id="edDelete" type="button">Delete shot</button>';
+  });
+  document.querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+    let v = $(b.dataset.copy).value.trim();
+    if (!v) { toast("Write a prompt first"); return; }
+    if (b.dataset.copy === "edKey") {
+      const looks = castFor($("edChars").value).map((c) => `${c.name}: ${c.look}`).filter(Boolean).join("; ");
+      v = [v, looks, settings.style].filter(Boolean).join(", ");
+    }
+    try { await navigator.clipboard.writeText(v); toast("Copied"); }
+    catch { toast("Copy isn't available here. Select the text and copy it manually."); }
+  }));
+  $("kfFile").addEventListener("change", (e) => uploadKeyframe(e.target.files[0]));
+  $("kfRemove").addEventListener("click", removeKeyframe);
+  $("takeFile").addEventListener("change", (e) => uploadTake(e.target.files[0]));
+  $("takeList").addEventListener("click", (e) => {
+    const sel = e.target.closest("[data-select-take]"); if (sel) { selectTake(sel.dataset.selectTake); return; }
+    const rm = e.target.closest("[data-remove-take]"); if (rm) removeTake(rm.dataset.removeTake, rm);
+  });
+
+  let titleTimer;
+  $("filmTitle").addEventListener("input", () => { clearTimeout(titleTimer); titleTimer = setTimeout(() => saveSettings({ title: $("filmTitle").value.trim() || DEFAULT_SETTINGS.title }), 700); });
+
+  // Script
+  $("scriptText").addEventListener("input", () => { $("scriptText").dataset.dirty = "1"; $("scriptSaved").textContent = "Unsaved changes"; });
+  async function saveScript() {
+    if (!db || !canWrite) return;
+    try { await db.doc("script/main").set({ text: $("scriptText").value, updatedAt: new Date().toISOString() }); $("scriptText").dataset.dirty = ""; $("scriptSaved").textContent = "Saved"; }
+    catch (e) { writeFailed(e); }
+  }
+  $("saveScript").addEventListener("click", saveScript);
+  $("breakdown").addEventListener("click", async () => { if ($("scriptText").dataset.dirty === "1") await saveScript(); breakdown(); });
+  $("stopBreakdown").addEventListener("click", () => breakdownCtl && breakdownCtl.abort());
+  $("discardDraft").addEventListener("click", () => { draftShots = []; renderDraft(); $("breakdownStatus").textContent = ""; });
+  $("acceptDraft").addEventListener("click", acceptDraft);
+
+  // Cast
+  function editCast(id) {
+    const c = cast.find((x) => x.id === id); if (!c) return;
+    castEditing = id; $("cName").value = c.name || ""; $("cLook").value = c.look || ""; $("cVoice").value = c.voice || "";
+    $("cSave").textContent = "Save character"; $("cCancel").hidden = false; $("cDelete").hidden = !canWrite; $("cDelete").textContent = "Delete";
+    $("cName").focus();
+  }
+  function resetCast() { castEditing = null; $("castForm").reset(); $("cSave").textContent = "Add character"; $("cCancel").hidden = true; $("cDelete").hidden = true; delete $("cDelete").dataset.armed; }
+  $("castList").addEventListener("click", (e) => { const c = e.target.closest("[data-cast]"); if (c) editCast(c.dataset.cast); });
+  $("castList").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.dataset.cast) editCast(e.target.dataset.cast); });
+  $("cCancel").addEventListener("click", resetCast);
+  $("cDelete").addEventListener("click", async () => {
+    if (!castEditing) return;
+    if ($("cDelete").dataset.armed !== "1") { $("cDelete").dataset.armed = "1"; $("cDelete").textContent = "Confirm delete"; return; }
+    try { await db.collection("characters").doc(castEditing).delete(); resetCast(); toast("Character deleted"); } catch (e) { writeFailed(e); }
+  });
+  $("castForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); if (!db || !canWrite) return;
+    const prev = castEditing ? cast.find((x) => x.id === castEditing) : null;
+    const data = { name: $("cName").value.trim(), look: $("cLook").value.trim(), voice: $("cVoice").value.trim(), example: prev ? !!prev.example : false };
+    if (!data.name) return;
+    try { await (castEditing ? db.collection("characters").doc(castEditing) : db.collection("characters").doc()).set(data); toast(prev ? "Character saved" : "Character added"); resetCast(); }
+    catch (err) { writeFailed(err); }
+  });
+
+  // Budget
+  $("spDate").value = new Date().toISOString().slice(0, 10);
+  $("spendForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); if (!db || !canWrite) return;
+    const data = { date: $("spDate").value, tool: $("spTool").value, item: $("spItem").value.trim(), amount: num($("spAmount").value), credits: num($("spCredits").value) };
+    try { await db.collection("spend").doc().set(data); $("spItem").value = ""; $("spAmount").value = ""; $("spCredits").value = ""; toast("Purchase added"); }
+    catch (err) { writeFailed(err); }
+  });
+  $("spendRows").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-del-spend]"); if (!b || !db) return;
+    if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "Confirm remove"; return; }
+    try { await db.collection("spend").doc(b.dataset.delSpend).delete(); toast("Purchase removed"); } catch (err) { writeFailed(err); }
+  });
+
+  // Settings & pipeline
+  let settingsWriting = false;
+  async function saveSettings(patch) {
+    if (!db || !canWrite || settingsWriting) return false;
+    settingsWriting = true;
+    const next = stripId({ ...settings, ...patch });
+    try { await db.doc("settings/film").set(next); settings = { ...next }; renderAll(); return true; }
+    catch (e) { writeFailed(e); return false; }
+    finally { settingsWriting = false; }
+  }
+  $("settingsForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const ok = await saveSettings({ targetSeconds: num($("stTarget").value, 300), budget: num($("stBudget").value, 290), draftRate: num($("stDraft").value, 6), finalRate: num($("stFinal").value, 12), style: $("stStyle").value.trim() });
+    if (ok) toast("Settings saved");
+  });
+  $("stageList").addEventListener("change", async (e) => {
+    const sel = e.target.closest("[data-stage]"); if (!sel) return;
+    const ok = await saveSettings({ pipeline: { ...(settings.pipeline || {}), [sel.dataset.stage]: sel.value } });
+    if (ok) toast(`${STAGES.find((s) => s.id === sel.dataset.stage).label}: ${sel.value}`);
+  });
+
+  try { const t = localStorage.getItem("board-tab"); if (t && $("view-" + t)) switchTab(t); } catch {}
+
+  // ---------- Connect ----------
+  renderAll();
+  $("breakdown").hidden = true;
+
+  (async () => {
+    const claude = window.claude;
+    const found = claude && claude.use ? await claude.use("db") : null;
+    if (!found) {
+      dbMessage = "Saved shots appear here when you open this board in Claude while signed in.";
+      $("conn").textContent = "Not connected"; $("conn").className = "conn off";
+      canWrite = false; applyWriteState(); return;
+    }
+    db = found;
+    try { const user = await claude.use("user"); if (user && user.can) { const c = await user.can("data.write"); if (c === false) canWrite = false; } } catch {}
+    $("conn").textContent = canWrite ? "Saved automatically" : "View only";
+    $("conn").className = "conn live";
+    const onErr = () => { $("conn").textContent = "Connection lost. Reload to reconnect."; $("conn").className = "conn off"; };
+    db.collection("shots").onSnapshot((snap) => { shots = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
+    db.collection("takes").onSnapshot((snap) => { takes = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
+    db.collection("spend").onSnapshot((snap) => { spend = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
+    db.collection("characters").onSnapshot((snap) => { cast = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
+    db.doc("settings/film").onSnapshot((snap) => { settings = snap.exists ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS }; renderAll(); }, onErr);
+    db.doc("script/main").onSnapshot((snap) => { script = snap.exists ? String(snap.data().text || "") : ""; renderScript(); }, onErr);
+    applyWriteState();
+
+    const [a, s, d] = await Promise.all([claude.use("assets"), claude.use("sample"), claude.use("downloads")]);
+    assets = a; downloads = d;
+    if (s && canWrite) { sample = s; $("breakdown").hidden = false; }
+    renderAll();
+  })();
+})();
+</script>

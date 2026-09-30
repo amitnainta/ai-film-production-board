@@ -1,0 +1,36 @@
+{
+  "$comment": "Copy to pipeline.json. Secrets are referenced by environment variable name only; never put keys in this file or the board.",
+  "budget": { "totalUsd": 290, "stopAtRemainingUsd": 10 },
+  "style": "stylized 3D animated feature film, soft global illumination, subsurface skin shading, expressive oversized eyes, rounded shapes, cinematic depth of field",
+  "stages": {
+    "keyframes": {
+      "mode": "manual",
+      "provider": "flux",
+      "options": { "aspectRatio": "16:9", "variantsPerShot": 4 },
+      "api": { "secretEnv": "FLUX_API_KEY" }
+    },
+    "video": {
+      "mode": "manual",
+      "provider": "kling",
+      "model": "kling-3.0",
+      "rates": { "draftCreditsPerSecond": 6, "finalCreditsPerSecond": 12 },
+      "options": { "draftResolution": "720p", "finalResolution": "1080p", "nativeAudio": false, "maxTakesPerShot": 5 },
+      "api": { "secretEnv": "KLING_API_KEY" }
+    },
+    "videoBackup": {
+      "mode": "manual",
+      "provider": "seedance",
+      "model": "seedance-2.0",
+      "api": { "secretEnv": "SEEDANCE_API_KEY" }
+    },
+    "voice": {
+      "mode": "manual",
+      "provider": "elevenlabs",
+      "voices": { "Mira": "<voice id>", "Bolt": "<voice id>" },
+      "api": { "secretEnv": "ELEVENLABS_API_KEY" }
+    },
+    "lipsync": { "mode": "manual", "provider": "kling-lipsync" },
+    "music": { "mode": "manual", "provider": "suno" },
+    "edit": { "mode": "manual", "provider": "davinci-resolve", "export": "fcpxml" }
+  }
+}

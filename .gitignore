@@ -1,0 +1,7 @@
+config/pipeline.json
+.env
+.env.*
+node_modules/
+renders/
+*.mp4
+*.webm
