@@ -46,9 +46,14 @@ Commands (from the repo root, Node 20+, no dependencies):
 node worker/src/cli.js doctor            # check config and secrets
 node worker/src/cli.js plan              # jobs, cost estimate, budget guard
 node worker/src/cli.js run --confirm     # render (paid providers need --confirm)
+node worker/src/cli.js assemble          # rough cut + FCPXML/EDL/SRT in renders/cut/
 npm --prefix worker test                 # tests, no network needed
 ```
 
+## Assembly (Stage 3)
+
+Ask Claude for a rough cut, or run `node worker/src/cli.js assemble` after pulling the board and its selected takes. You get `renders/cut/rough-cut.mp4` (every shot in order: selected take, else keyframe still, else slate card, with dialogue and an optional `--music` bed), `timeline.fcpxml` for DaVinci Resolve (File → Import → Timeline), `timeline.edl`, and `captions.srt`. The video needs ffmpeg (`FFMPEG_PATH`, `--ffmpeg`, or on the PATH); `--edit-only` writes just the edit files.
+
 ## Status
 
-Stages 1 and 2 are built. The worker is tested against simulated provider responses; the first live run needs provider keys and network access to the provider hosts.
+Stages 1–3 are built. The worker is tested against simulated provider responses and a real ffmpeg render; the first live provider run needs keys and network access to the provider hosts, and the FCPXML hasn't been imported into Resolve yet.

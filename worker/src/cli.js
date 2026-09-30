@@ -1,11 +1,14 @@
 #!/usr/bin/env node
-// film-worker: doctor | plan | run
+// film-worker: doctor | plan | run | assemble
 //   --board <file|dir>   board export JSON or database dump dir (default: renders/board)
 //   --config <file>      pipeline config (default: config/pipeline.json)
 //   --out <dir>          where renders and results go (default: renders)
 //   --inputs <dir>       downloaded keyframe assets (default: <out>/inputs)
 //   --only <SC01-SH02>   limit to one shot (repeatable)
 //   --confirm            required for `run` when any job uses a paid provider
+//   --music <file>       assemble: music bed under the dialogue
+//   --ffmpeg <path>      assemble: ffmpeg binary (else FFMPEG_PATH or PATH)
+//   --edit-only          assemble: write edit files only, no video
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { fileURLToPath } from "node:url";
@@ -14,6 +17,7 @@ import { budgetFrom, loadConfig, resolveStages, STAGES } from "./config.js";
 import { applyBudget, spentUsd } from "./budget.js";
 import { selectJobs } from "./jobs.js";
 import { runJobs } from "./run.js";
+import { assemble } from "./assemble.js";
 import { defaultSleep } from "./providers/http.js";
 import { PROVIDERS } from "./providers/index.js";
 
@@ -25,6 +29,7 @@ export async function main(argv = process.argv.slice(2), io = { log: console.log
     options: {
       board: { type: "string" }, config: { type: "string" }, out: { type: "string" }, inputs: { type: "string" },
       only: { type: "string", multiple: true }, confirm: { type: "boolean", default: false },
+      music: { type: "string" }, ffmpeg: { type: "string" }, "edit-only": { type: "boolean", default: false },
     },
   });
   const cmd = positionals[0] ?? "plan";
@@ -42,6 +47,15 @@ export async function main(argv = process.argv.slice(2), io = { log: console.log
   }
 
   const board = await loadBoard(path.resolve(values.board ?? path.join(out, "board")));
+  if (cmd === "assemble") {
+    const res = await assemble(board, {
+      outDir: path.join(out, "cut"), inputsDir: path.resolve(values.inputs ?? path.join(out, "inputs")), root: ROOT,
+      title: board.settings.title || "Untitled film", assembly: config.assembly, music: values.music ? path.resolve(values.music) : null,
+      ffmpeg: values.ffmpeg, env, log, render: !values["edit-only"],
+    });
+    log(`Edit files: ${Object.values(res.files).filter(Boolean).join(", ")}`);
+    return res;
+  }
   const stages = resolveStages(config, board.settings);
   let { jobs, skipped } = selectJobs(board, stages);
   if (values.only?.length) jobs = jobs.filter((j) => values.only.includes(j.shot));
@@ -59,7 +73,7 @@ export async function main(argv = process.argv.slice(2), io = { log: console.log
   log(`Projected spend after this run: $${projectedUsd}${limitUsd > 0 ? ` (limit $${limitUsd})` : ""}`);
 
   if (cmd === "plan") return { allowed, held, skipped };
-  if (cmd !== "run") throw new Error(`Unknown command "${cmd}". Use doctor, plan or run.`);
+  if (cmd !== "run") throw new Error(`Unknown command "${cmd}". Use doctor, plan, run or assemble.`);
 
   const paid = allowed.filter((j) => j.provider !== "mock");
   if (paid.length && !values.confirm) {

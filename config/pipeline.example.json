@@ -1,19 +1,27 @@
 {
   "$comment": "Copy to config/pipeline.json (git-ignored). The board's Pipeline tab chooses the tool and mode per stage; this file holds provider details. Secrets are referenced by environment variable name only. Verify model ids and endpoints in your provider's API console before the first paid run.",
-  "budget": { "totalUsd": 290, "stopAtRemainingUsd": 10 },
+  "budget": {
+    "totalUsd": 290,
+    "stopAtRemainingUsd": 10
+  },
   "stages": {
     "keyframes": {
       "mode": "manual",
       "provider": "kling",
       "model": "kling-v3",
       "usdPerImage": 0,
-      "options": { "aspectRatio": "16:9", "variantsPerShot": 2 },
+      "options": {
+        "aspectRatio": "16:9",
+        "variantsPerShot": 2
+      },
       "api": {
         "baseUrl": "https://api-singapore.klingai.com",
         "auth": "jwt",
         "accessKeyEnv": "KLING_ACCESS_KEY",
         "secretKeyEnv": "KLING_SECRET_KEY",
-        "endpoints": { "image": "/v1/images/generations" }
+        "endpoints": {
+          "image": "/v1/images/generations"
+        }
       }
     },
     "video": {
@@ -21,13 +29,19 @@
       "provider": "kling",
       "model": "kling-v2-1",
       "usdPerCredit": 0.0101,
-      "options": { "draftMode": "std", "finalMode": "pro", "negativePrompt": "blurry, distorted hands, extra limbs, text, watermark" },
+      "options": {
+        "draftMode": "std",
+        "finalMode": "pro",
+        "negativePrompt": "blurry, distorted hands, extra limbs, text, watermark"
+      },
       "api": {
         "baseUrl": "https://api-singapore.klingai.com",
         "auth": "jwt",
         "accessKeyEnv": "KLING_ACCESS_KEY",
         "secretKeyEnv": "KLING_SECRET_KEY",
-        "endpoints": { "imageToVideo": "/v1/videos/image2video" }
+        "endpoints": {
+          "imageToVideo": "/v1/videos/image2video"
+        }
       }
     },
     "voice": {
@@ -35,9 +49,23 @@
       "provider": "elevenlabs",
       "model": "eleven_multilingual_v2",
       "usdPerLine": 0,
-      "voices": { "Mira": "<voice id>", "Bolt": "<voice id>" },
-      "options": { "outputFormat": "mp3_44100_128" },
-      "api": { "secretEnv": "ELEVENLABS_API_KEY" }
+      "voices": {
+        "Mira": "<voice id>",
+        "Bolt": "<voice id>"
+      },
+      "options": {
+        "outputFormat": "mp3_44100_128"
+      },
+      "api": {
+        "secretEnv": "ELEVENLABS_API_KEY"
+      }
     }
+  },
+  "assembly": {
+    "fps": 24,
+    "width": 1920,
+    "height": 1080,
+    "slateColor": "0x1a202b",
+    "musicVolumeDb": -14
   }
 }
