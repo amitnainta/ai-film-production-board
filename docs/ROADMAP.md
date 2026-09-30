@@ -13,13 +13,16 @@
 
 ## Stage 2 — Render worker
 
-- [ ] `config/pipeline.json` loader and provider interface (`generateImage`, `generateVideo`, `generateSpeech`)
-- [ ] Keyframe provider: Flux or Google Imagen (Midjourney has no official public API)
-- [ ] Video provider: Kling 3.0 image-to-video; Seedance 2.0 and Veo 3.1 as alternates
-- [ ] Voice provider: ElevenLabs per-character voices; lip-sync step
-- [ ] Job selection from board state; results uploaded to the asset store; actual cost logged
-- [ ] Budget guard: stop before exceeding remaining budget or credits
-- [ ] Mode switch per stage in the Pipeline tab (manual / automated)
+- [x] `config/pipeline.json` loader and provider interface (`generateImage`, `generateVideo`, `generateSpeech`)
+- [x] Kling provider: keyframe images and image-to-video (JWT or API-key auth, task polling)
+- [x] ElevenLabs provider: per-character voices
+- [x] Mock provider for rehearsal runs
+- [x] Job selection from the board's render queue; results manifest; render-sync skill uploads results
+- [x] Budget guard: hold jobs that would exceed the budget limit
+- [x] Mode switch per stage in the Pipeline tab; render queue in the shot editor
+- [ ] First live run against Kling and ElevenLabs (needs keys and network access to the provider hosts)
+- [ ] More providers: Flux or Google Imagen keyframes, Seedance 2.0 and Veo 3.1 video
+- [ ] Lip-sync stage
 
 ## Stage 3 — Assembly and delivery
 

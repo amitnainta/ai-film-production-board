@@ -125,6 +125,8 @@ td.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-s
 .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
 .ex { font: 500 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--s-keyframe); border: 1px dashed var(--s-keyframe); border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
 .take-btns { display: flex; gap: 4px; }
+.queued { font: 500 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 1px 5px; margin-left: 6px; white-space: nowrap; }
+.btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
 .thumb { width: 72px; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; background: var(--sunk); object-fit: cover; display: block; }
 .thumb.none { display: grid; place-items: center; font: 500 10px var(--f-mono); color: var(--muted); border: 1px dashed var(--line); }
 .empty { padding: 36px 20px; text-align: center; color: var(--muted); display: grid; gap: 10px; justify-items: center; }
@@ -380,7 +382,7 @@ textarea { resize: vertical; min-height: 64px; }
     <div class="two">
       <div class="panel span">
         <h2>Pipeline stages</h2>
-        <p class="muted" style="font-size:13.5px">Choose the tool for each stage. Every stage is manual for now: you generate in the tool and upload the result here. Automated stages need the render worker (Stage 2), which will read this configuration.</p>
+        <p class="muted" style="font-size:13.5px">Choose the tool for each stage. Manual stages: you generate in the tool and upload the result here. Automated stages: queue shots from the shot editor and the render worker generates them, then uploads the results back to this board. Keyframes, video and voices can be automated.</p>
         <div class="stage-list" id="stageList"></div>
       </div>
       <div class="panel">
@@ -428,6 +430,11 @@ textarea { resize: vertical; min-height: 64px; }
     </form>
 
     <div id="mediaArea" hidden style="display:grid;gap:16px">
+      <div class="media-box" id="queueBox">
+        <div class="prompt-row"><h3>Render queue</h3><span class="status-line" id="queueStatus"></span></div>
+        <div class="row" id="queueBtns"></div>
+        <p class="status-line" id="voiceFile" hidden></p>
+      </div>
       <div class="media-box">
         <div class="prompt-row"><h3>Keyframe</h3>
           <span class="row" id="kfBtns"><span class="btn small file">Upload image<input type="file" id="kfFile" accept="image/png,image/jpeg,image/webp"></span><button class="btn small danger" id="kfRemove" type="button" hidden>Remove</button></span>
@@ -471,10 +478,10 @@ textarea { resize: vertical; min-height: 64px; }
   const FRAMES = ["WS", "MS", "MCU", "CU", "ECU", "OTS", "POV", "INSERT"];
   const TOOLS = ["Kling 3.0", "Seedance 2.0", "Veo 3.1", "Runway Gen-4.5", "Other"];
   const STAGES = [
-    { id: "keyframes", label: "Keyframes", desc: "Character sheets and a start frame for every shot", options: ["Midjourney", "Flux.2", "Google Imagen", "Other"] },
-    { id: "video", label: "Video takes", desc: "Image-to-video for most shots", options: ["Kling 3.0", "Seedance 2.0", "Veo 3.1", "Runway Gen-4.5", "Other"] },
+    { id: "keyframes", label: "Keyframes", desc: "Character sheets and a start frame for every shot", options: ["Midjourney", "Kling", "Flux.2", "Google Imagen", "Mock (test)", "Other"], auto: ["Kling", "Mock (test)"] },
+    { id: "video", label: "Video takes", desc: "Image-to-video for most shots", options: ["Kling 3.0", "Seedance 2.0", "Veo 3.1", "Runway Gen-4.5", "Mock (test)", "Other"], auto: ["Kling 3.0", "Mock (test)"] },
     { id: "videoBackup", label: "Backup video", desc: "Action and multi-character shots", options: ["Seedance 2.0", "Kling 3.0", "Veo 3.1", "Vidu", "None"] },
-    { id: "voice", label: "Voices", desc: "One saved voice per character", options: ["ElevenLabs", "Other"] },
+    { id: "voice", label: "Voices", desc: "One saved voice per character", options: ["ElevenLabs", "Mock (test)", "Other"], auto: ["ElevenLabs", "Mock (test)"] },
     { id: "lipsync", label: "Lip-sync", desc: "Match mouths to recorded dialogue", options: ["Kling lip-sync", "Other"] },
     { id: "music", label: "Music & sound", desc: "Score, ambience and effects", options: ["Suno", "Sound library", "Native video audio", "Other"] },
     { id: "edit", label: "Edit & finish", desc: "Cut, colour match, sound mix, export", options: ["DaVinci Resolve", "Premiere Pro", "Other"] },
@@ -621,7 +628,7 @@ textarea { resize: vertical; min-height: 64px; }
         <td class="action">${esc(s.action) || '<span class="dialogue">No action written</span>'}${s.dialogue ? `<div class="dialogue">“${esc(s.dialogue)}”</div>` : ""}</td>
         <td class="num">${num(s.duration)}s</td>
         <td>${esc(s.tool || videoTool())}</td>
-        <td><span class="pill" style="--c:${statusColor(status)}">${st[status] || esc(status)}</span></td>
+        <td><span class="pill" style="--c:${statusColor(status)}">${st[status] || esc(status)}</span>${s.renderQueue && Object.values(s.renderQueue).some(Boolean) ? '<span class="queued">Queued</span>' : ""}</td>
         <td class="num">${num(s.takes)}${sel ? ' <span title="Take selected for the cut">✓</span>' : ""}</td>
         <td class="num">${num(s.credits).toLocaleString()}</td>
         <td><div class="take-btns">${canWrite ? `<button class="btn small" data-take="draft" data-id="${esc(s.id)}" title="Log a 720p draft take">+ Draft</button><button class="btn small" data-take="final" data-id="${esc(s.id)}" title="Log a 1080p final take">+ Final</button>` : "—"}</div></td>
@@ -663,8 +670,24 @@ textarea { resize: vertical; min-height: 64px; }
       <span class="n">${i + 1}</span>
       <span class="what"><b>${st.label}</b><span>${st.desc}</span></span>
       <select data-stage="${st.id}" aria-label="${st.label} tool" ${canWrite ? "" : "disabled"}>${st.options.map((o) => `<option ${o === (pl[st.id] || st.options[0]) ? "selected" : ""}>${esc(o)}</option>`).join("")}</select>
-      <select aria-label="${st.label} mode" disabled><option>Manual (upload)</option><option>Automated (Stage 2)</option></select>
+      ${modeSelect(st)}
     </div>`).join("");
+  }
+
+  function stageMode(id) { return (settings.pipelineModes && settings.pipelineModes[id]) || "manual"; }
+  function modeSelect(st) {
+    const tool = (settings.pipeline || {})[st.id] || st.options[0];
+    if (!st.auto) return `<select aria-label="${st.label} mode" disabled><option>Manual only</option></select>`;
+    const can = st.auto.includes(tool);
+    const mode = can ? stageMode(st.id) : "manual";
+    return `<select data-mode="${st.id}" aria-label="${st.label} mode" ${canWrite && can ? "" : "disabled"} title="${can ? "" : "The render worker has no provider for " + esc(tool)}">
+      <option value="manual" ${mode === "manual" ? "selected" : ""}>Manual (upload)</option>
+      <option value="automated" ${mode === "automated" ? "selected" : ""}>Automated (worker)</option></select>`;
+  }
+  function isAuto(id) {
+    const st = STAGES.find((x) => x.id === id);
+    const tool = (settings.pipeline || {})[id] || st.options[0];
+    return !!st.auto && st.auto.includes(tool) && stageMode(id) === "automated";
   }
 
   function renderSettingsForm() {
@@ -743,6 +766,7 @@ textarea { resize: vertical; min-height: 64px; }
   function renderMedia() {
     const s = editingId ? shots.find((x) => x.id === editingId) : null;
     if (!s) return;
+    renderQueue(s);
     if (document.activeElement !== $("edTakes")) $("edTakes").value = num(s.takes);
     if (document.activeElement !== $("edCredits")) $("edCredits").value = num(s.credits);
     const canUpload = !!assets && canWrite;
@@ -767,6 +791,35 @@ textarea { resize: vertical; min-height: 64px; }
       n.classList.toggle("sel", on);
       const b = n.querySelector("[data-select-take]"); if (b) b.textContent = on ? "In the cut" : "Use in cut";
     });
+  }
+
+  function renderQueue(s) {
+    const q = s.renderQueue || {};
+    const items = [
+      { key: "keyframe", val: true, label: "Keyframe", stage: "keyframes" },
+      { key: "video", val: "draft", label: "Draft take", stage: "video" },
+      { key: "video", val: "final", label: "Final take", stage: "video" },
+      { key: "voice", val: true, label: "Dialogue voice", stage: "voice" },
+    ];
+    const anyAuto = items.some((i) => isAuto(i.stage));
+    $("queueBtns").innerHTML = items.map((i) => {
+      const on = q[i.key] === i.val;
+      const auto = isAuto(i.stage);
+      return `<button type="button" class="btn small${on ? " on" : ""}" data-q="${i.key}" data-qv="${i.val}" ${canWrite && (auto || on) ? "" : "disabled"} title="${auto ? "" : "Set this stage to Automated in the Pipeline tab"}">${on ? "✓ " : "+ "}${i.label}</button>`;
+    }).join("");
+    const n = Object.values(q).filter(Boolean).length;
+    $("queueStatus").textContent = s.renderError ? `Last render failed: ${s.renderError}` : n ? `${n} queued for the render worker` : anyAuto ? "Nothing queued" : "Set stages to Automated in the Pipeline tab to queue work";
+    $("voiceFile").hidden = !s.dialogueFile;
+    $("voiceFile").textContent = s.dialogueFile ? `Dialogue audio: ${s.dialogueFile} (kept with the render files for the edit)` : "";
+  }
+  async function toggleQueue(key, raw) {
+    const s = shots.find((x) => x.id === editingId); if (!s || !db) return;
+    const val = raw === "true" ? true : raw;
+    const q = { ...(s.renderQueue || {}) };
+    q[key] = q[key] === val ? null : val;
+    Object.keys(q).forEach((k) => { if (!q[k]) delete q[k]; });
+    try { await db.collection("shots").doc(s.id).update({ renderQueue: Object.keys(q).length ? q : null }); }
+    catch (e) { writeFailed(e); }
   }
 
   async function saveEditor() {
@@ -1114,6 +1167,7 @@ Reply with only a JSON array of shot objects:
   $("kfFile").addEventListener("change", (e) => uploadKeyframe(e.target.files[0]));
   $("kfRemove").addEventListener("click", removeKeyframe);
   $("takeFile").addEventListener("change", (e) => uploadTake(e.target.files[0]));
+  $("queueBtns").addEventListener("click", (e) => { const b = e.target.closest("[data-q]"); if (b) toggleQueue(b.dataset.q, b.dataset.qv); });
   $("takeList").addEventListener("click", (e) => {
     const sel = e.target.closest("[data-select-take]"); if (sel) { selectTake(sel.dataset.selectTake); return; }
     const rm = e.target.closest("[data-remove-take]"); if (rm) removeTake(rm.dataset.removeTake, rm);
@@ -1190,6 +1244,12 @@ Reply with only a JSON array of shot objects:
     if (ok) toast("Settings saved");
   });
   $("stageList").addEventListener("change", async (e) => {
+    const mode = e.target.closest("[data-mode]");
+    if (mode) {
+      const ok = await saveSettings({ pipelineModes: { ...(settings.pipelineModes || {}), [mode.dataset.mode]: mode.value } });
+      if (ok) toast(`${STAGES.find((s) => s.id === mode.dataset.mode).label}: ${mode.value === "automated" ? "automated by the render worker" : "manual"}`);
+      return;
+    }
     const sel = e.target.closest("[data-stage]"); if (!sel) return;
     const ok = await saveSettings({ pipeline: { ...(settings.pipeline || {}), [sel.dataset.stage]: sel.value } });
     if (ok) toast(`${STAGES.find((s) => s.id === sel.dataset.stage).label}: ${sel.value}`);

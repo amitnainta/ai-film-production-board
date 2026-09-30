@@ -13,7 +13,9 @@ script → cast bible → shot list → keyframes → video takes → voices / l
 | Path | What it is |
 |---|---|
 | `board/index.html` | The production board. A single-page app published as a Claude Artifact; data lives in the artifact's database and asset store. |
-| `config/pipeline.example.json` | Tool configuration per pipeline stage: provider, mode, rates and API settings the render worker will use. |
+| `worker/` | The render worker: turns queued shots into keyframes, video takes and dialogue audio through configurable providers. |
+| `.claude/skills/render-sync/` | The procedure Claude follows to move data between the board and the worker. |
+| `config/pipeline.example.json` | Provider details per stage: models, endpoints, prices, secret names. |
 | `docs/ARCHITECTURE.md` | How the board, its data model and the render worker fit together. |
 | `docs/ROADMAP.md` | Stage 1 (board), Stage 2 (render worker), Stage 3 (assembly and export). |
 
@@ -31,6 +33,22 @@ script → cast bible → shot list → keyframes → video takes → voices / l
 
 The board is published as a Claude Artifact with the `db`, `user`, `sample`, `assets` and `downloads` capabilities. From a Claude Code session, publish `board/index.html` to the existing artifact URL to update it in place (the data survives republishing).
 
+## Render worker (Stage 2)
+
+1. On the board's Pipeline tab, set a stage's tool to one the worker supports (Kling, Kling 3.0, ElevenLabs, or Mock (test)) and its mode to **Automated**.
+2. In the shot editor, queue work: keyframe, draft take, final take or dialogue voice.
+3. Copy `config/pipeline.example.json` to `config/pipeline.json`, check the model ids and prices, and set the secrets named there (`KLING_ACCESS_KEY`, `KLING_SECRET_KEY`, `ELEVENLABS_API_KEY`).
+4. Ask Claude to "render the queue". It follows `.claude/skills/render-sync`: pulls the board, shows you the plan and estimated cost, renders after you approve, and uploads the results.
+
+Commands (from the repo root, Node 20+, no dependencies):
+
+```
+node worker/src/cli.js doctor            # check config and secrets
+node worker/src/cli.js plan              # jobs, cost estimate, budget guard
+node worker/src/cli.js run --confirm     # render (paid providers need --confirm)
+npm --prefix worker test                 # tests, no network needed
+```
+
 ## Status
 
-Stage 1 is live. Stage 2 (render worker) is designed in `docs/ARCHITECTURE.md` and not built yet.
+Stages 1 and 2 are built. The worker is tested against simulated provider responses; the first live run needs provider keys and network access to the provider hosts.
