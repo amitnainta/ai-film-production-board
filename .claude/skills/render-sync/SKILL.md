@@ -36,13 +36,13 @@ Results are listed in `renders/results.json`. Report failures with their error t
 
 ## 5. Push results to the board
 
-Skip files marked `"mock": true`; they are rehearsal output. For each succeeded result:
+Don't upload files marked `"mock": true`; they are rehearsal output. Still clear the queue entries of succeeded mock jobs. For each succeeded result:
 
 - **keyframes:** upload the first image with `Artifact` (`url` = the board, `asset: true`, `file_paths`). Update the shot: `keyframeAsset` = new asset id; `status` = `keyframe` if it was `script`. Mention extra variants to the user; they stay in `renders/`.
 - **video:** upload the MP4 (20 MB limit; tell the user if a file is larger). Create a `takes` document `{shotId, asset, kind, credits, createdAt, fileName, provider, taskId}`. Update the shot: `takes` + 1, `credits` + result credits, `selectedTake` = new take id if it had none, `status` = `animating` if it was `script` or `keyframe`.
 - **voice:** audio can't go in the board's asset store. Set the shot's `dialogueFile` to the file's path under `renders/`.
 
-Then remove each succeeded job's key from the shot's `renderQueue` (set `renderQueue` to null when empty). For failed jobs, leave the queue entry and set `renderError` to the error text. Clear `renderError` on shots whose jobs all succeeded. Use one `ArtifactData` `batch` per group of up to 50 writes.
+Then remove each succeeded job's key from the shot's `renderQueue` (set `renderQueue` to null when empty). For failed jobs, leave the queue entry and set `renderError` to the error text. For jobs the plan skipped, do the same with `Skipped: <reason>` so the user sees why in the shot editor. Clear `renderError` on shots whose jobs all succeeded. Use one `ArtifactData` `batch` per group of up to 50 writes.
 
 ## 6. Report
 

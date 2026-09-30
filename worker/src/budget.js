@@ -4,6 +4,7 @@ import { num } from "./board.js";
 
 export function estimateUsd(job, stages) {
   const s = stages[job.stage] ?? {};
+  if (job.provider === "mock") return 0;
   if (job.stage === "video") return round(num(job.credits) * num(s.usdPerCredit, 0));
   if (job.stage === "keyframes") return round(num(s.usdPerImage, 0) * num(s.options?.variantsPerShot, 1));
   if (job.stage === "voice") return round(num(s.usdPerLine, 0));

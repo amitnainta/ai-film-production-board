@@ -34,7 +34,12 @@ export async function main(argv = process.argv.slice(2), io = { log: console.log
 
   const config = await loadConfig(configFile);
 
-  if (cmd === "doctor") return doctor(config, configFile, env, log);
+  if (cmd === "doctor") {
+    let settings = {};
+    try { settings = (await loadBoard(path.resolve(values.board ?? path.join(out, "board")))).settings; }
+    catch { log("(No board dump found; checking config defaults. Pull the board first to check what it has chosen.)"); }
+    return doctor(config, resolveStages(config, settings), configFile, env, log);
+  }
 
   const board = await loadBoard(path.resolve(values.board ?? path.join(out, "board")));
   const stages = resolveStages(config, board.settings);
@@ -71,13 +76,14 @@ export async function main(argv = process.argv.slice(2), io = { log: console.log
   return { allowed, held, skipped, ran: true, manifest };
 }
 
-function doctor(config, configFile, env, log) {
+function doctor(config, stages, configFile, env, log) {
   const problems = [];
   log(`Config: ${configFile}`);
   for (const stage of STAGES) {
-    const s = config.stages[stage] ?? {};
+    const s = stages[stage];
     const p = s.provider ?? "(none)";
-    log(`  ${stage.padEnd(10)} provider=${p} mode=${s.mode ?? "manual"}${s.model ? ` model=${s.model}` : ""}`);
+    log(`  ${stage.padEnd(10)} provider=${p} mode=${s.mode}${s.boardTool ? ` (board: ${s.boardTool})` : ""}${s.model && p !== "mock" ? ` model=${s.model}` : ""}`);
+    if (s.blocked) problems.push(`${stage}: ${s.blocked}`);
     if (s.provider && !PROVIDERS.includes(s.provider)) problems.push(`${stage}: provider "${s.provider}" isn't supported (${PROVIDERS.join(", ")}).`);
     if (s.provider === "kling") {
       const api = s.api ?? {};

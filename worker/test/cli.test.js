@@ -77,6 +77,14 @@ test("doctor lists missing secrets and placeholder voices", async () => {
   assert.ok(lines.some((l) => /problem/.test(l)));
 });
 
+test("doctor checks the providers the board chose, not just config defaults", async () => {
+  const board = sampleBoard();
+  board.settings.pipeline = { keyframes: "Mock (test)", video: "Mock (test)", voice: "Mock (test)" };
+  const { args, io } = await setup(board);
+  const res = await main(args("doctor"), { ...io, env: {} });
+  assert.deepEqual(res.problems, []);
+});
+
 test("reads a database dump directory as well as an export file", async () => {
   const { dir, io } = await setup();
   const dump = path.join(dir, "dump");

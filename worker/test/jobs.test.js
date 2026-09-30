@@ -53,6 +53,15 @@ test("video length snaps to 5 or 10 seconds", () => {
   assert.equal(videoSeconds({ duration: 5.5 }), 10);
 });
 
+test("mock jobs cost nothing", () => {
+  const board = normalizeBoard(sampleBoard());
+  board.settings.pipeline = { video: "Mock (test)" };
+  const stages = resolveStages(sampleConfig(), board.settings);
+  const job = selectJobs(board, stages).jobs.find((j) => j.stage === "video");
+  assert.equal(job.provider, "mock");
+  assert.equal(estimateUsd(job, stages), 0);
+});
+
 test("budget guard holds jobs that would pass the limit", () => {
   const board = normalizeBoard(sampleBoard({ purchases: [{ amount: 279 }] }));
   const stages = resolveStages(sampleConfig(), board.settings);
