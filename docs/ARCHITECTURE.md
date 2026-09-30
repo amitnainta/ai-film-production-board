@@ -53,7 +53,11 @@ All collections live in the artifact database. Ids are opaque strings. Media fie
 
 ### `characters`
 
-`{ name, look, voice, example }`. `look` is the locked description used in every prompt.
+`{ name, look, voice, refAssets, example }`. `look` is the locked description used in every prompt. `refAssets` holds up to 4 reference image asset ids; the first is primary and is sent with every keyframe that includes the character.
+
+### `locations`
+
+`{ name, description, refAssets }`. Shots point at a location by name. Its description goes into the keyframe prompt, and its primary reference image is sent as the scene image.
 
 ### `shots`
 
@@ -63,6 +67,7 @@ All collections live in the artifact database. Ids are opaque strings. Media fie
 | `framing` | string | `WS`, `MS`, `MCU`, `CU`, `ECU`, `OTS`, `POV`, `INSERT` |
 | `duration` | number | Seconds |
 | `characters` | string | Comma-separated cast names |
+| `location` | string | Location name, or empty |
 | `action`, `dialogue` | string | |
 | `keyframePrompt`, `motionPrompt` | string | |
 | `tool` | string | Video tool for this shot |
@@ -91,7 +96,7 @@ All collections live in the artifact database. Ids are opaque strings. Media fie
 ## Worker loop
 
 1. **Select jobs** (`worker/src/jobs.js`): every shot with a `renderQueue` entry whose stage is automated and has a provider. A video job without a keyframe asset waits for the keyframe job queued in the same run. Anything else is reported as skipped with a reason.
-2. **Build prompts**: keyframe prompt + locked looks of the characters in the shot + global style; the motion prompt for video; the dialogue line and the speaker's voice id for voice.
+2. **Build prompts and references**: keyframe prompt + locked looks of the characters in the shot + the location description + global style; plus reference images: the primary reference of each character in the shot and of the location. With references, Kling keyframes use the multi-image endpoint (`subject_image_list` for characters, `scene_image` for the location); `options.referenceMode: "single"` sends one reference to the plain endpoint instead, and `"none"` disables them. Video uses the approved keyframe as its first frame, so it inherits the references. The motion prompt drives video; the dialogue line and the speaker's voice id drive voice.
 3. **Budget guard** (`worker/src/budget.js`): estimated cost per job (video: credits × `usdPerCredit`; images: `usdPerImage` × variants; voice: `usdPerLine`). Jobs that would push spend past `budget − stopAtRemainingUsd` are held.
 4. **Render** (`worker/src/run.js`): keyframes first, then video, then voice. Provider calls retry once on HTTP 429/5xx. Paid providers run only with `--confirm`.
 5. **Results**: files under `renders/<shot>/` and a manifest at `renders/results.json`, which the render-sync skill turns into assets, takes and shot updates.

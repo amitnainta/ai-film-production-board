@@ -66,7 +66,7 @@ export async function main(argv = process.argv.slice(2), io = { log: console.log
   log(`Stages: ${STAGES.map((s) => `${s}=${stages[s].mode}${stages[s].provider ? `/${stages[s].provider}` : ""}`).join("  ")}`);
   log("");
   if (!allowed.length) log("No jobs to run. Queue shots from the board's shot editor and set their stages to Automated.");
-  for (const j of allowed) log(`  ${j.id.padEnd(26)} ${j.provider.padEnd(11)} ~$${j.estUsd.toFixed(2)}${j.credits ? `  ${j.credits} credits` : ""}`);
+  for (const j of allowed) log(`  ${j.id.padEnd(26)} ${j.provider.padEnd(11)} ~$${j.estUsd.toFixed(2)}${j.credits ? `  ${j.credits} credits` : ""}${j.references?.length ? `  refs: ${j.references.map((r) => r.name).join(", ")}` : ""}`);
   for (const h of held) log(`  HELD ${h.id}: ${h.reason}`);
   for (const s of skipped) log(`  skip ${s.shot} ${s.stage}: ${s.reason}`);
   log("");

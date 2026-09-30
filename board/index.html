@@ -159,6 +159,13 @@ textarea { resize: vertical; min-height: 64px; }
 .cast-card:hover { border-color: var(--accent); }
 .cast-card b { font-family: var(--f-display); font-size: 16px; }
 .cast-card span { font-size: 13.5px; color: var(--muted); }
+.refs { display: flex; flex-wrap: wrap; gap: 6px; }
+.refs img { width: 56px; height: 56px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line); background: var(--sunk); display: block; }
+.ref { position: relative; display: grid; gap: 2px; justify-items: center; }
+.ref.primary img { border: 2px solid var(--accent); }
+.ref .tag { font: 500 9.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.ref-edit { display: grid; gap: 8px; border: 1px dashed var(--line); border-radius: 8px; padding: 10px; }
+.ref-edit .refs button { font-size: 11px; }
 
 /* Pipeline config */
 .stage-list { display: grid; gap: 0; }
@@ -290,16 +297,32 @@ textarea { resize: vertical; min-height: 64px; }
       </div>
       <div class="panel">
         <h2>Cast</h2>
-        <p class="muted" style="font-size:13.5px">Lock each character's look here. Claude uses these descriptions in every prompt it writes, which keeps faces, size and outfits consistent.</p>
+        <p class="muted" style="font-size:13.5px">Lock each character's look here. Claude uses these descriptions in every prompt it writes, and the render worker sends each character's primary reference image with every keyframe, which keeps faces, size and outfits consistent.</p>
         <div class="cast" id="castList"></div>
         <form class="grid" id="castForm">
           <label class="full">Name<input id="cName" required maxlength="40"></label>
           <label class="full">Locked look (face, build, height, outfit)<textarea id="cLook" placeholder="e.g. 11-year-old girl, curly red hair, freckles, round glasses pushed up, yellow raincoat, about 140 cm tall"></textarea></label>
           <label class="full">Voice notes<input id="cVoice" placeholder="e.g. bright, fast talker; ElevenLabs voice “Mira v2”"></label>
+          <div class="full ref-edit" id="cRefs" hidden></div>
           <div class="full row">
             <button class="btn primary" type="submit" id="cSave">Add character</button>
             <button class="btn" type="button" id="cCancel" hidden>Cancel</button>
             <button class="btn danger" type="button" id="cDelete" hidden>Delete</button>
+          </div>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Locations</h2>
+        <p class="muted" style="font-size:13.5px">One approved image per place keeps every shot there consistent. Pick a shot's location in the shot editor; its description and primary reference image go into that shot's keyframe.</p>
+        <div class="cast" id="locList"></div>
+        <form class="grid" id="locForm">
+          <label class="full">Name<input id="lName" required maxlength="40"></label>
+          <label class="full">Description (layout, props, lighting)<textarea id="lDesc" placeholder="e.g. flat rooftop, round water tank, low parapet, city glow below"></textarea></label>
+          <div class="full ref-edit" id="lRefs" hidden></div>
+          <div class="full row">
+            <button class="btn primary" type="submit" id="lSave">Add location</button>
+            <button class="btn" type="button" id="lCancel" hidden>Cancel</button>
+            <button class="btn danger" type="button" id="lDelete" hidden>Delete</button>
           </div>
         </form>
       </div>
@@ -418,7 +441,8 @@ textarea { resize: vertical; min-height: 64px; }
       <label>Duration (s)<input type="number" id="edDur" min="1" max="30" step="0.5" required></label>
       <label>Tool<select id="edTool"></select></label>
       <label>Status<select id="edStatus"></select></label>
-      <label class="full">Characters<input id="edChars" placeholder="e.g. Mira, Bolt"></label>
+      <label>Characters<input id="edChars" placeholder="e.g. Arun, Tock"></label>
+      <label>Location<select id="edLoc"></select></label>
       <label class="full">Action<textarea id="edAction" placeholder="What happens in this shot"></textarea></label>
       <label class="full">Dialogue<textarea id="edDialogue" placeholder="Leave empty if none"></textarea></label>
       <div class="full prompt-row"><span class="eyebrow">Prompts</span><span class="row"><span class="status-line" id="suggestStatus"></span><button type="button" class="btn small primary" id="suggestBtn" hidden>Suggest prompts with Claude</button></span></div>
@@ -504,7 +528,8 @@ textarea { resize: vertical; min-height: 64px; }
   };
 
   let db = null, assets = null, sample = null, downloads = null, canWrite = true;
-  let shots = [], takes = [], spend = [], cast = [], settings = { ...DEFAULT_SETTINGS }, script = "";
+  let shots = [], takes = [], spend = [], cast = [], locs = [], settings = { ...DEFAULT_SETTINGS }, script = "";
+  let locEditing = null;
   let filter = "all", editingId = null, castEditing = null, draftShots = [];
   let dbMessage = "Connecting to your production board…";
 
@@ -555,6 +580,15 @@ textarea { resize: vertical; min-height: 64px; }
     const list = String(names || "").split(/[,&]/).map((n) => n.trim().toLowerCase()).filter(Boolean);
     return cast.filter((c) => list.includes(String(c.name || "").toLowerCase()));
   }
+  function locFor(name) {
+    const want = String(name || "").trim().toLowerCase();
+    return want ? locs.find((l) => String(l.name || "").toLowerCase() === want) || null : null;
+  }
+  function locLine(name) {
+    const l = locFor(name);
+    return l && l.description ? `setting (${l.name}): ${l.description}` : "";
+  }
+  const refList = (doc) => (Array.isArray(doc && doc.refAssets) ? doc.refAssets.filter(Boolean) : []);
   function castBlock(chars) {
     const list = chars && chars.length ? chars : cast;
     return list.length ? list.map((c) => `- ${c.name}: ${c.look || "(no look written yet)"}`).join("\n") : "(no cast defined)";
@@ -702,10 +736,58 @@ textarea { resize: vertical; min-height: 64px; }
     if (active !== $("filmTitle")) $("filmTitle").value = settings.title || DEFAULT_SETTINGS.title;
   }
 
+  function thumbsHtml(doc) {
+    const r = refList(doc);
+    return r.length ? `<div class="refs">${r.map((id) => `<img src="${blob(id)}" alt="" loading="lazy">`).join("")}</div>` : "";
+  }
   function renderCast() {
     $("castList").innerHTML = cast.length ? [...cast].sort((a, b) => String(a.name).localeCompare(String(b.name))).map((c) =>
-      `<div class="cast-card" data-cast="${esc(c.id)}" tabindex="0"><b>${esc(c.name)}${c.example ? '<span class="ex">Example</span>' : ""}</b><span>${esc(c.look) || "No look written yet"}</span>${c.voice ? `<span>Voice: ${esc(c.voice)}</span>` : ""}</div>`).join("")
+      `<div class="cast-card" data-cast="${esc(c.id)}" tabindex="0"><b>${esc(c.name)}${c.example ? '<span class="ex">Example</span>' : ""}</b><span>${esc(c.look) || "No look written yet"}</span>${c.voice ? `<span>Voice: ${esc(c.voice)}</span>` : ""}${thumbsHtml(c)}</div>`).join("")
       : `<p class="muted" style="font-size:13.5px">No characters yet. Add your main characters before writing prompts.</p>`;
+    $("locList").innerHTML = locs.length ? [...locs].sort((a, b) => String(a.name).localeCompare(String(b.name))).map((l) =>
+      `<div class="cast-card" data-loc="${esc(l.id)}" tabindex="0"><b>${esc(l.name)}</b><span>${esc(l.description) || "No description yet"}</span>${thumbsHtml(l)}</div>`).join("")
+      : `<p class="muted" style="font-size:13.5px">No locations yet. Add each place your film returns to.</p>`;
+    renderRefEditor("cRefs", "characters", castEditing ? cast.find((x) => x.id === castEditing) : null, "character");
+    renderRefEditor("lRefs", "locations", locEditing ? locs.find((x) => x.id === locEditing) : null, "location");
+  }
+
+  // Reference images for a character or location. The first one is primary:
+  // the render worker sends it with every keyframe that includes this doc.
+  function renderRefEditor(boxId, col, doc, noun) {
+    const box = $(boxId);
+    box.hidden = !doc;
+    if (!doc) { box.innerHTML = ""; return; }
+    const r = refList(doc);
+    const can = !!assets && canWrite;
+    box.innerHTML = `<span class="eyebrow">Reference images (${r.length}/4)</span>
+      ${r.length ? `<div class="refs">${r.map((id, i) => `<div class="ref${i === 0 ? " primary" : ""}"><img src="${blob(id)}" alt="Reference ${i + 1}">
+        ${i === 0 ? '<span class="tag">Primary</span>' : can ? `<button type="button" class="btn small" data-ref-primary="${esc(id)}" data-col="${col}" data-doc="${esc(doc.id)}">Make primary</button>` : ""}
+        ${can ? `<button type="button" class="btn small danger" data-ref-remove="${esc(id)}" data-col="${col}" data-doc="${esc(doc.id)}">Remove</button>` : ""}</div>`).join("")}</div>`
+        : `<span class="muted" style="font-size:13px">No reference yet. Upload an approved ${noun} image, such as a model sheet or turnaround for a character, or an establishing image for a place.</span>`}
+      ${can && r.length < 4 ? `<span class="btn small file" style="justify-self:start">Upload image<input type="file" accept="image/png,image/jpeg,image/webp" data-ref-upload="${col}" data-doc="${esc(doc.id)}"></span>` : ""}
+      <span class="status-line" data-ref-status="${col}"></span>`;
+  }
+  async function refUpload(col, id, file) {
+    const list = col === "characters" ? cast : locs;
+    const doc = list.find((x) => x.id === id); if (!doc || !assets || !file) return;
+    const status = document.querySelector(`[data-ref-status="${col}"]`);
+    if (status) status.textContent = "Uploading…";
+    try {
+      const res = await assets.upload(file);
+      await db.collection(col).doc(id).update({ refAssets: [...refList(doc), res.id].slice(0, 4) });
+      toast("Reference image added");
+    } catch (e) { if (status) status.textContent = e && e.code && !["invalid_argument", "quota_exceeded"].includes(e.code) ? uploadMessage(e) : "Couldn't save the image."; }
+  }
+  async function refChange(col, id, assetId, action) {
+    const list = col === "characters" ? cast : locs;
+    const doc = list.find((x) => x.id === id); if (!doc) return;
+    const r = refList(doc);
+    const next = action === "primary" ? [assetId, ...r.filter((x) => x !== assetId)] : r.filter((x) => x !== assetId);
+    try {
+      await db.collection(col).doc(id).update({ refAssets: next });
+      if (action === "remove" && assets) assets.delete(assetId).catch(() => {});
+      toast(action === "primary" ? "Primary reference changed" : "Reference removed");
+    } catch (e) { writeFailed(e); }
   }
 
   function renderScript() {
@@ -732,7 +814,7 @@ textarea { resize: vertical; min-height: 64px; }
   function applyWriteState() {
     $("addShot").hidden = !canWrite;
     $("filmTitle").readOnly = !canWrite;
-    document.querySelectorAll("#spendForm button, #settingsForm button, #castForm button, #edSave, #saveScript, #acceptDraft").forEach((b) => (b.disabled = !canWrite));
+    document.querySelectorAll("#spendForm button, #settingsForm button, #castForm button, #locForm button, #edSave, #saveScript, #acceptDraft").forEach((b) => (b.disabled = !canWrite));
     renderAll();
   }
 
@@ -750,6 +832,10 @@ textarea { resize: vertical; min-height: 64px; }
     $("edFrame").value = d.framing || "MS"; $("edDur").value = num(d.duration, 5);
     $("edTool").value = TOOLS.includes(d.tool) ? d.tool : "Other"; $("edStatus").value = d.status || "script";
     $("edChars").value = d.characters || ""; $("edAction").value = d.action || ""; $("edDialogue").value = d.dialogue || "";
+    const locNames = [...locs.map((l) => l.name)].sort();
+    if (d.location && !locNames.includes(d.location)) locNames.push(d.location);
+    $("edLoc").innerHTML = `<option value="">—</option>` + locNames.map((n) => `<option>${esc(n)}</option>`).join("");
+    $("edLoc").value = d.location || "";
     $("edKey").value = d.keyframePrompt || ""; $("edMotion").value = d.motionPrompt || "";
     $("edTakes").value = num(d.takes); $("edCredits").value = num(d.credits); $("edNotes").value = d.notes || "";
     $("delWrap").innerHTML = s && canWrite ? '<button class="btn danger" id="edDelete" type="button">Delete shot</button>' : "";
@@ -829,7 +915,7 @@ textarea { resize: vertical; min-height: 64px; }
       ...(prev ? stripId(prev) : {}),
       scene: num($("edScene").value, 1), no: num($("edNo").value, 1), framing: $("edFrame").value,
       duration: num($("edDur").value, 5), tool: $("edTool").value, status: $("edStatus").value,
-      characters: $("edChars").value.trim(), action: $("edAction").value.trim(), dialogue: $("edDialogue").value.trim(),
+      characters: $("edChars").value.trim(), location: $("edLoc").value, action: $("edAction").value.trim(), dialogue: $("edDialogue").value.trim(),
       keyframePrompt: $("edKey").value.trim(), motionPrompt: $("edMotion").value.trim(),
       takes: num($("edTakes").value), credits: num($("edCredits").value), notes: $("edNotes").value.trim(),
       example: prev ? !!prev.example : false,
@@ -932,6 +1018,7 @@ Write two prompts for ONE shot:
 
 Shot: ${slug({ scene: $("edScene").value, no: $("edNo").value })}, framing ${$("edFrame").value}, ${$("edDur").value} seconds.
 Characters in shot: ${$("edChars").value || "none named"}
+Location: ${locLine($("edLoc").value) || $("edLoc").value || "(not set)"}
 Action: ${$("edAction").value || "(not written)"}
 Dialogue: ${$("edDialogue").value || "(none)"}
 Current keyframe prompt (improve it if present): ${$("edKey").value || "(none)"}
@@ -970,6 +1057,7 @@ Rules:
 - framing is one of: ${FRAMES.join(", ")}.
 - Prefer medium shots and close-ups; keep at most 2 characters in most shots; avoid crowds and complex hand actions.
 - characters: comma-separated names exactly as in the cast list, or "" if none.
+- location: one name exactly as in the locations list, or "" if none fits.
 - action: one plain sentence of what we see. dialogue: the exact spoken line for this shot, or "".
 - keyframePrompt: a first-frame image prompt with framing, characters (using their locked looks, including relative height), pose, setting, lighting, expression. No style words, no studio or brand names.
 - motionPrompt: under 30 words: motion within the shot plus one camera move.
@@ -977,13 +1065,16 @@ Rules:
 Cast (locked looks):
 ${castBlock()}
 
+Locations:
+${locs.length ? locs.map((l) => `- ${l.name}: ${l.description || "(no description)"}`).join("\n") : "(no locations defined)"}
+
 Script:
 """
 ${text.slice(0, 60000)}
 """
 
 Reply with only a JSON array of shot objects:
-[{"scene":1,"no":1,"framing":"WS","duration":5,"characters":"","action":"...","dialogue":"","keyframePrompt":"...","motionPrompt":"..."}]`;
+[{"scene":1,"no":1,"framing":"WS","duration":5,"characters":"","location":"","action":"...","dialogue":"","keyframePrompt":"...","motionPrompt":"..."}]`;
     breakdownCtl = new AbortController();
     $("breakdown").disabled = true; $("stopBreakdown").hidden = false;
     $("breakdownStatus").textContent = "Claude is reading the script. This usually takes 30–90 seconds…";
@@ -994,7 +1085,8 @@ Reply with only a JSON array of shot objects:
         scene: Math.max(1, Math.round(num(s.scene, 1))), no: Math.max(1, Math.round(num(s.no, i + 1))),
         framing: FRAMES.includes(String(s.framing).toUpperCase()) ? String(s.framing).toUpperCase() : "MS",
         duration: Math.min(15, Math.max(2, num(s.duration, 5))),
-        characters: String(s.characters || "").slice(0, 200), action: String(s.action || "").slice(0, 600), dialogue: String(s.dialogue || "").slice(0, 600),
+        characters: String(s.characters || "").slice(0, 200), location: locFor(s.location) ? locFor(s.location).name : "",
+        action: String(s.action || "").slice(0, 600), dialogue: String(s.dialogue || "").slice(0, 600),
         keyframePrompt: String(s.keyframePrompt || "").slice(0, 1500), motionPrompt: String(s.motionPrompt || "").slice(0, 600),
       }));
       $("breakdownStatus").textContent = draftShots.length ? "Review the proposed shots below, then add them to the shot list." : "Claude didn't return any shots. Try again or shorten the script.";
@@ -1107,7 +1199,7 @@ Reply with only a JSON array of shot objects:
   function boardJson() {
     return JSON.stringify({
       format: "ai-film-production-board", version: 1, exportedAt: new Date().toISOString(),
-      settings: stripId(settings), script, characters: cast.map(stripIdKeep), shots: sortedShots().map(stripIdKeep), takes: takes.map(stripIdKeep), purchases: spend.map(stripIdKeep),
+      settings: stripId(settings), script, characters: cast.map(stripIdKeep), locations: locs.map(stripIdKeep), shots: sortedShots().map(stripIdKeep), takes: takes.map(stripIdKeep), purchases: spend.map(stripIdKeep),
     }, null, 2);
   }
   function stripIdKeep(o) { return { ...o }; }
@@ -1159,7 +1251,7 @@ Reply with only a JSON array of shot objects:
     if (!v) { toast("Write a prompt first"); return; }
     if (b.dataset.copy === "edKey") {
       const looks = castFor($("edChars").value).map((c) => `${c.name}: ${c.look}`).filter(Boolean).join("; ");
-      v = [v, looks, settings.style].filter(Boolean).join(", ");
+      v = [v, looks, locLine($("edLoc").value), settings.style].filter(Boolean).join(", ");
     }
     try { await navigator.clipboard.writeText(v); toast("Copied"); }
     catch { toast("Copy isn't available here. Select the text and copy it manually."); }
@@ -1194,9 +1286,10 @@ Reply with only a JSON array of shot objects:
     const c = cast.find((x) => x.id === id); if (!c) return;
     castEditing = id; $("cName").value = c.name || ""; $("cLook").value = c.look || ""; $("cVoice").value = c.voice || "";
     $("cSave").textContent = "Save character"; $("cCancel").hidden = false; $("cDelete").hidden = !canWrite; $("cDelete").textContent = "Delete";
+    renderRefEditor("cRefs", "characters", c, "character");
     $("cName").focus();
   }
-  function resetCast() { castEditing = null; $("castForm").reset(); $("cSave").textContent = "Add character"; $("cCancel").hidden = true; $("cDelete").hidden = true; delete $("cDelete").dataset.armed; }
+  function resetCast() { castEditing = null; $("castForm").reset(); $("cSave").textContent = "Add character"; $("cCancel").hidden = true; $("cDelete").hidden = true; delete $("cDelete").dataset.armed; renderRefEditor("cRefs", "characters", null); }
   $("castList").addEventListener("click", (e) => { const c = e.target.closest("[data-cast]"); if (c) editCast(c.dataset.cast); });
   $("castList").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.dataset.cast) editCast(e.target.dataset.cast); });
   $("cCancel").addEventListener("click", resetCast);
@@ -1208,10 +1301,60 @@ Reply with only a JSON array of shot objects:
   $("castForm").addEventListener("submit", async (e) => {
     e.preventDefault(); if (!db || !canWrite) return;
     const prev = castEditing ? cast.find((x) => x.id === castEditing) : null;
-    const data = { name: $("cName").value.trim(), look: $("cLook").value.trim(), voice: $("cVoice").value.trim(), example: prev ? !!prev.example : false };
+    const data = { name: $("cName").value.trim(), look: $("cLook").value.trim(), voice: $("cVoice").value.trim(), refAssets: refList(prev), example: prev ? !!prev.example : false };
     if (!data.name) return;
-    try { await (castEditing ? db.collection("characters").doc(castEditing) : db.collection("characters").doc()).set(data); toast(prev ? "Character saved" : "Character added"); resetCast(); }
-    catch (err) { writeFailed(err); }
+    const ref = castEditing ? db.collection("characters").doc(castEditing) : db.collection("characters").doc();
+    try {
+      await ref.set(data);
+      if (prev) { toast("Character saved"); resetCast(); }
+      else { toast("Character added. Upload reference images below."); castEditing = ref.id; $("cSave").textContent = "Save character"; $("cCancel").hidden = false; }
+    } catch (err) { writeFailed(err); }
+  });
+
+  // Locations
+  function editLoc(id) {
+    const l = locs.find((x) => x.id === id); if (!l) return;
+    locEditing = id; $("lName").value = l.name || ""; $("lDesc").value = l.description || "";
+    $("lSave").textContent = "Save location"; $("lCancel").hidden = false; $("lDelete").hidden = !canWrite; $("lDelete").textContent = "Delete";
+    renderRefEditor("lRefs", "locations", l, "location");
+    $("lName").focus();
+  }
+  function resetLoc() { locEditing = null; $("locForm").reset(); $("lSave").textContent = "Add location"; $("lCancel").hidden = true; $("lDelete").hidden = true; delete $("lDelete").dataset.armed; renderRefEditor("lRefs", "locations", null); }
+  $("locList").addEventListener("click", (e) => { const c = e.target.closest("[data-loc]"); if (c) editLoc(c.dataset.loc); });
+  $("locList").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.dataset.loc) editLoc(e.target.dataset.loc); });
+  $("lCancel").addEventListener("click", resetLoc);
+  $("lDelete").addEventListener("click", async () => {
+    if (!locEditing) return;
+    if ($("lDelete").dataset.armed !== "1") { $("lDelete").dataset.armed = "1"; $("lDelete").textContent = "Confirm delete"; return; }
+    try { await db.collection("locations").doc(locEditing).delete(); resetLoc(); toast("Location deleted"); } catch (e) { writeFailed(e); }
+  });
+  $("locForm").addEventListener("submit", async (e) => {
+    e.preventDefault(); if (!db || !canWrite) return;
+    const prev = locEditing ? locs.find((x) => x.id === locEditing) : null;
+    const data = { name: $("lName").value.trim(), description: $("lDesc").value.trim(), refAssets: refList(prev) };
+    if (!data.name) return;
+    const ref = locEditing ? db.collection("locations").doc(locEditing) : db.collection("locations").doc();
+    try {
+      await ref.set(data);
+      if (prev) { toast("Location saved"); resetLoc(); }
+      else { toast("Location added. Upload a reference image below."); locEditing = ref.id; $("lSave").textContent = "Save location"; $("lCancel").hidden = false; }
+    } catch (err) { writeFailed(err); }
+  });
+
+  // Reference image buttons (both panels)
+  document.addEventListener("change", (e) => {
+    const inp = e.target.closest("[data-ref-upload]"); if (!inp) return;
+    refUpload(inp.dataset.refUpload, inp.dataset.doc, inp.files[0]);
+    inp.value = "";
+  });
+  document.addEventListener("click", (e) => {
+    const p = e.target.closest("[data-ref-primary]");
+    if (p) { refChange(p.dataset.col, p.dataset.doc, p.dataset.refPrimary, "primary"); return; }
+    const r = e.target.closest("[data-ref-remove]");
+    if (r) {
+      if (r.dataset.armed !== "1") { r.dataset.armed = "1"; r.textContent = "Confirm"; return; }
+      refChange(r.dataset.col, r.dataset.doc, r.dataset.refRemove, "remove");
+    }
   });
 
   // Budget
@@ -1278,6 +1421,7 @@ Reply with only a JSON array of shot objects:
     db.collection("takes").onSnapshot((snap) => { takes = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
     db.collection("spend").onSnapshot((snap) => { spend = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
     db.collection("characters").onSnapshot((snap) => { cast = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
+    db.collection("locations").onSnapshot((snap) => { locs = snap.docs.map((d) => ({ id: d.id, ...d.data() })); renderAll(); }, onErr);
     db.doc("settings/film").onSnapshot((snap) => { settings = snap.exists ? { ...DEFAULT_SETTINGS, ...snap.data() } : { ...DEFAULT_SETTINGS }; renderAll(); }, onErr);
     db.doc("script/main").onSnapshot((snap) => { script = snap.exists ? String(snap.data().text || "") : ""; renderScript(); }, onErr);
     applyWriteState();
