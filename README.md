@@ -16,6 +16,7 @@ script → cast bible → shot list → keyframes → video takes → voices / l
 | `worker/` | The render worker: turns queued shots into keyframes, video takes and dialogue audio through configurable providers. |
 | `.claude/skills/render-sync/` | The procedure Claude follows to move data between the board and the worker. |
 | `config/pipeline.example.json` | Provider details per stage: models, endpoints, prices, secret names. |
+| `films/tock/` | TOCK, the first film: script, cast, 61-shot list and a board export the worker can read. |
 | `docs/ARCHITECTURE.md` | How the board, its data model and the render worker fit together. |
 | `docs/ROADMAP.md` | Stage 1 (board), Stage 2 (render worker), Stage 3 (assembly and export). |
 
