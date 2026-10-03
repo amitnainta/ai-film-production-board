@@ -5,3 +5,5 @@ node_modules/
 renders/
 *.mp4
 *.webm
+data/
+local/node_modules/
