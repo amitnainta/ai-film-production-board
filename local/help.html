@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Production Board Help</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #eef1f6; --surface: #ffffff; --sunk: #e3e8f0; --ink: #18202e; --muted: #5b6577; --line: #d3dae6;
+  --accent: #2f62d8; --accent-soft: #dfe8fb; --accent-ink: #ffffff; --red: #c8412f; --red-soft: #fbe6e2;
+  --amber: #c98a12; --amber-soft: #fbf0dc; --green: #1f8a5b;
+  --s-script: #8a93a3; --s-keyframe: #c98a12; --s-animating: #2f62d8; --s-approved: #1f8a5b; --s-final: #18202e;
+  --code-bg: #e9edf4;
+  --shadow: 0 1px 2px rgba(24,32,46,.06), 0 8px 24px rgba(24,32,46,.08);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151d; --surface: #1a202b; --sunk: #232a37; --ink: #e7ebf2; --muted: #9aa4b6; --line: #2e3646;
+    --accent: #7ea2f5; --accent-soft: #24304a; --accent-ink: #0d1320; --red: #f07a68; --red-soft: #3a2420;
+    --amber: #e2a93a; --amber-soft: #352c18; --green: #4cc38a;
+    --s-script: #8a93a3; --s-keyframe: #e2a93a; --s-animating: #7ea2f5; --s-approved: #4cc38a; --s-final: #e7ebf2;
+    --code-bg: #121720; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151d; --surface: #1a202b; --sunk: #232a37; --ink: #e7ebf2; --muted: #9aa4b6; --line: #2e3646;
+  --accent: #7ea2f5; --accent-soft: #24304a; --accent-ink: #0d1320; --red: #f07a68; --red-soft: #3a2420;
+  --amber: #e2a93a; --amber-soft: #352c18; --green: #4cc38a;
+  --s-script: #8a93a3; --s-keyframe: #e2a93a; --s-animating: #7ea2f5; --s-approved: #4cc38a; --s-final: #e7ebf2;
+  --code-bg: #121720; --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15.5px/1.6 var(--f-body); }
+a { color: var(--accent); }
+.layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px; max-width: 1180px; margin: 0 auto; padding: 32px 24px 80px; }
+nav.toc { position: sticky; top: 24px; align-self: start; max-height: calc(100vh - 48px); overflow: auto; font-size: 14px; }
+nav.toc .brand { font: 700 13px/1.2 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; counter-reset: toc; }
+nav.toc li { counter-increment: toc; }
+nav.toc a { display: flex; gap: 8px; padding: 5px 10px; border-radius: 7px; color: var(--ink); text-decoration: none; }
+nav.toc ol a::before { content: counter(toc, decimal-leading-zero); font: 500 12px/1.9 var(--f-mono); color: var(--muted); }
+nav.toc a:hover { background: var(--sunk); }
+nav.toc a.active { background: var(--accent-soft); color: var(--accent); }
+nav.toc .back { display: inline-block; margin-top: 18px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); text-decoration: none; color: var(--ink); font-weight: 500; }
+main { min-width: 0; }
+header.hero { margin-bottom: 28px; }
+.eyebrow { font: 500 12px/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 44px; height: 6px; background: repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 11px); }
+h1 { font: 700 44px/1.05 var(--f-display); margin: 14px 0 12px; letter-spacing: -.01em; }
+.lede { font-size: 17px; color: var(--muted); max-width: 70ch; margin: 0; }
+section.doc { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 28px 32px; margin: 0 0 22px; }
+h2 { font: 700 26px/1.2 var(--f-display); margin: 0 0 6px; }
+h2 .num { font: 500 14px var(--f-mono); color: var(--muted); margin-right: 10px; vertical-align: 4px; }
+h3 { font: 600 17px/1.3 var(--f-body); margin: 26px 0 8px; }
+p, li { max-width: 74ch; }
+.sub { color: var(--muted); margin: 0 0 18px; }
+code { font: 13.5px var(--f-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; overflow-wrap: anywhere; }
+.cmd { position: relative; margin: 10px 0 14px; }
+.cmd pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 9px; padding: 12px 84px 12px 14px; overflow-x: auto; font: 13.5px/1.55 var(--f-mono); }
+.cmd pre code { background: none; border: 0; padding: 0; }
+.cmd .lbl { display: block; font: 500 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.copy { position: absolute; right: 8px; bottom: 8px; font: 500 12px var(--f-body); padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.note, .warn, .tip { border-radius: 10px; padding: 12px 16px; margin: 14px 0; font-size: 14.5px; border: 1px solid; }
+.note { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+.warn { background: var(--red-soft); border-color: color-mix(in srgb, var(--red) 35%, transparent); }
+.tip { background: var(--amber-soft); border-color: color-mix(in srgb, var(--amber) 35%, transparent); }
+.note strong, .warn strong, .tip strong { display: block; margin-bottom: 2px; }
+.note p, .warn p, .tip p { margin: 4px 0 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 10px 0 16px; }
+.tablewrap { overflow-x: auto; }
+th, td { text-align: left; vertical-align: top; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+th { font: 600 12.5px var(--f-body); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; background: var(--sunk); }
+td code { white-space: nowrap; }
+ol.steps { padding-left: 0; list-style: none; counter-reset: s; }
+ol.steps > li { counter-increment: s; position: relative; padding: 2px 0 14px 44px; }
+ol.steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 700 14px/30px var(--f-display); text-align: center; }
+ol.steps > li > strong:first-child { display: block; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.pill::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.ui { font-weight: 600; }
+.ui::before { content: "“"; color: var(--muted); font-weight: 400; } .ui::after { content: "”"; color: var(--muted); font-weight: 400; }
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+.flow div { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--bg); font-size: 13.5px; }
+.flow b { display: block; font: 600 14.5px var(--f-body); margin-bottom: 2px; }
+.flow .where { font: 500 11px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+.pipeline { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font: 500 13px var(--f-mono); margin: 12px 0 4px; }
+.pipeline span { padding: 5px 10px; border-radius: 999px; background: var(--sunk); border: 1px solid var(--line); }
+.pipeline i { color: var(--muted); font-style: normal; }
+kbd { font: 12.5px var(--f-mono); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; background: var(--surface); }
+dl.faq dt { font-weight: 600; margin-top: 16px; }
+dl.faq dd { margin: 4px 0 0; color: var(--ink); }
+footer { color: var(--muted); font-size: 13px; text-align: center; margin-top: 30px; }
+.theme { position: fixed; top: 14px; right: 14px; font: 500 12px var(--f-body); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; z-index: 5; }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; gap: 16px; padding: 56px 16px 60px; }
+  nav.toc { position: static; max-height: none; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  nav.toc ol { columns: 2; column-gap: 12px; }
+  h1 { font-size: 34px; }
+  section.doc { padding: 20px 18px; }
+}
+@media (max-width: 520px) {
+  nav.toc ol { columns: 1; }
+  .cmd pre { padding-right: 14px; }
+  .cmd .copy { position: static; margin-top: 6px; }
+}
+@media print { nav.toc, .theme, .copy { display: none; } .layout { display: block; } section.doc { box-shadow: none; break-inside: avoid-page; } }
+</style>
+</head>
+<body>
+<button class="theme" id="theme" type="button" aria-label="Switch light or dark theme">◐ Theme</button>
+<div class="layout">
+  <nav class="toc" aria-label="Contents">
+    <p class="brand">Production board · Help</p>
+    <ol>
+      <li><a href="#quick-start">Quick start</a></li>
+      <li><a href="#how-it-fits">How it fits together</a></li>
+      <li><a href="#setup">One-time setup</a></li>
+      <li><a href="#keys">API keys &amp; voice IDs</a></li>
+      <li><a href="#start-stop">Start &amp; stop</a></li>
+      <li><a href="#tour">Tour of the board</a></li>
+      <li><a href="#workflow">Making a film, step by step</a></li>
+      <li><a href="#rendering">Automated rendering</a></li>
+      <li><a href="#rough-cut">Rough cut &amp; final edit</a></li>
+      <li><a href="#budget">Budget &amp; cost safety</a></li>
+      <li><a href="#config">pipeline.json reference</a></li>
+      <li><a href="#files">Files, backups &amp; data</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#commands">Command reference</a></li>
+    </ol>
+    <a class="back" href="/">← Back to the board</a>
+  </nav>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">AI Film Production Board · local edition</div>
+      <h1>Help &amp; production guide</h1>
+      <p class="lede">Everything you need to run the production board on your own computer: starting and stopping it, entering API keys, and taking a short animated film from script to final cut.</p>
+    </header>
+
+    <!-- 1 -->
+    <section class="doc" id="quick-start">
+      <h2><span class="num">01</span>Quick start</h2>
+      <p class="sub">Open <b>PowerShell</b>, go to the project folder, and run one command.</p>
+      <div class="cmd"><span class="lbl">Go to the project folder</span><pre><code>cd C:\Users\amitn\MyAIprojects\ai-film-production-board</code></pre></div>
+      <div class="cmd"><span class="lbl">Start the board (opens your browser)</span><pre><code>.\start.ps1</code></pre></div>
+      <p>The board opens at <a href="http://localhost:5070">http://localhost:5070</a>. Everything you type is saved automatically to the <code>data</code> folder on this computer.</p>
+      <div class="cmd"><span class="lbl">Render queued shots (asks before spending)</span><pre><code>.\render.ps1</code></pre></div>
+      <div class="cmd"><span class="lbl">Build the rough cut video</span><pre><code>.\render.ps1 -Assemble</code></pre></div>
+      <div class="cmd"><span class="lbl">Stop everything</span><pre><code>.\stop.ps1</code></pre></div>
+      <div class="note"><strong>First time here?</strong><p>Work through <a href="#setup">One-time setup</a> and <a href="#keys">API keys</a> first. The board itself works without any keys; keys are only needed for automated rendering and the Claude buttons.</p></div>
+    </section>
+
+    <!-- 2 -->
+    <section class="doc" id="how-it-fits">
+      <h2><span class="num">02</span>How it fits together</h2>
+      <p class="sub">Three pieces, all on your computer.</p>
+      <div class="flow">
+        <div><span class="where">browser</span><b>The board</b>Script, cast, shot list, media, rough cut, budget and pipeline settings.</div>
+        <div><span class="where">start.ps1 · port 5070</span><b>Board server</b>Serves the board, saves every change to <code>data\</code>, and handles uploads and the Claude buttons.</div>
+        <div><span class="where">render.ps1</span><b>Render worker</b>Reads queued shots, calls Kling and ElevenLabs, and writes keyframes, takes and voice files back to the board.</div>
+        <div><span class="where">render.ps1 -Assemble</span><b>Assembly</b>Uses ffmpeg to build the rough-cut video plus edit files for DaVinci Resolve.</div>
+      </div>
+      <p>The production pipeline the board is organised around:</p>
+      <div class="pipeline"><span>script</span><i>→</i><span>cast bible</span><i>→</i><span>shot list</span><i>→</i><span>keyframes</span><i>→</i><span>video takes</span><i>→</i><span>voices / lip-sync</span><i>→</i><span>rough cut</span><i>→</i><span>final edit</span></div>
+      <p>Each stage can be <b>manual</b> (you make the image, video or audio in the tool's own website and upload it to the board) or, for keyframes, video and voices, <b>automated</b> (the render worker makes it for you through the tool's API).</p>
+      <div class="tip"><strong>Local and online boards are separate</strong><p>This local board started as a copy of the online board on claude.ai. They don't sync: changes made here stay here. Pick one to work in.</p></div>
+    </section>
+
+    <!-- 3 -->
+    <section class="doc" id="setup">
+      <h2><span class="num">03</span>One-time setup</h2>
+      <p class="sub">Already done on this computer. Use this section if you set the project up somewhere else.</p>
+      <ol class="steps">
+        <li><strong>Install the tools</strong>
+          Node.js 20 or newer (from nodejs.org), Git, and ffmpeg. ffmpeg is only needed to build the rough-cut video.
+          <div class="cmd"><span class="lbl">Install ffmpeg</span><pre><code>winget install Gyan.FFmpeg</code></pre></div>
+        </li>
+        <li><strong>Get the code</strong>
+          <div class="cmd"><pre><code>git clone https://github.com/amitnainta/ai-film-production-board.git</code></pre></div>
+        </li>
+        <li><strong>Create your pipeline config</strong>
+          <code>.\start.ps1</code> and <code>.\render.ps1</code> create <code>config\pipeline.json</code> from <code>config\pipeline.example.json</code> automatically if it's missing. Edit it as described in <a href="#keys">API keys &amp; voice IDs</a> and <a href="#config">pipeline.json reference</a>. This file is ignored by Git, so your settings never get committed.
+        </li>
+        <li><strong>Start the board once</strong>
+          The first <code>.\start.ps1</code> installs the board server's one dependency (the Anthropic SDK, used by the Claude buttons). That takes a few seconds and only happens once.
+        </li>
+        <li><strong>Check everything</strong>
+          <div class="cmd"><pre><code>node worker/src/cli.js doctor --board data/board</code></pre></div>
+          It lists anything missing: keys, model ids, voice ids, prices. Run it again after each fix until it says <b>All set.</b>
+        </li>
+      </ol>
+      <div class="note"><strong>PowerShell says scripts are disabled?</strong><p>Allow local scripts for your user account once, then open a new PowerShell window:</p>
+        <div class="cmd"><pre><code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></pre></div></div>
+    </section>
+
+    <!-- 4 -->
+    <section class="doc" id="keys">
+      <h2><span class="num">04</span>API keys &amp; voice IDs</h2>
+      <p class="sub">Keys live in Windows environment variables on this computer only. They are never typed into the board and never stored in the repo.</p>
+
+      <div class="tablewrap"><table>
+        <thead><tr><th>Variable</th><th>Needed for</th><th>Where to get it</th></tr></thead>
+        <tbody>
+          <tr><td><code>KLING_ACCESS_KEY</code></td><td>Automated keyframes and video with Kling</td><td>Kling AI developer / API console → API keys (an <i>Access Key</i> and <i>Secret Key</i> pair)</td></tr>
+          <tr><td><code>KLING_SECRET_KEY</code></td><td>Same as above</td><td>Shown with the access key when you create it. Copy it then; it may not be shown again.</td></tr>
+          <tr><td><code>ELEVENLABS_API_KEY</code></td><td>Automated dialogue voices</td><td>ElevenLabs → your profile / developer settings → API keys</td></tr>
+          <tr><td><code>ANTHROPIC_API_KEY</code></td><td>The <span class="ui">Break into shots with Claude</span> and <span class="ui">Suggest prompts with Claude</span> buttons</td><td>console.anthropic.com → API keys</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Set a key</h3>
+      <p>Run one line per key in PowerShell, with your real value in the quotes:</p>
+      <div class="cmd"><pre><code>setx KLING_ACCESS_KEY "paste-access-key-here"</code></pre></div>
+      <div class="cmd"><pre><code>setx KLING_SECRET_KEY "paste-secret-key-here"</code></pre></div>
+      <div class="cmd"><pre><code>setx ELEVENLABS_API_KEY "paste-elevenlabs-key-here"</code></pre></div>
+      <div class="cmd"><pre><code>setx ANTHROPIC_API_KEY "paste-anthropic-key-here"</code></pre></div>
+      <div class="warn"><strong>Open a new PowerShell window afterwards</strong><p><code>setx</code> only affects windows opened after it runs. If the board server is already running, restart it so it sees the new keys: <code>.\stop.ps1 -Server</code> then <code>.\start.ps1</code>, both from the new window.</p></div>
+
+      <h3>Check which keys are set</h3>
+      <div class="cmd"><pre><code>"KLING_ACCESS_KEY","KLING_SECRET_KEY","ELEVENLABS_API_KEY","ANTHROPIC_API_KEY" | % { "{0,-20} {1}" -f $_, $(if ([Environment]::GetEnvironmentVariable($_, "User")) { "set" } else { "missing" }) }</code></pre></div>
+      <p>It prints only “set” or “missing”, never the key itself.</p>
+
+      <h3>Change or remove a key</h3>
+      <p>Run <code>setx</code> again with the new value. To remove one, delete it from <b>Windows Settings → System → About → Advanced system settings → Environment Variables</b> (under “User variables”).</p>
+
+      <h3>Character voice IDs (ElevenLabs)</h3>
+      <p>Each speaking character needs an ElevenLabs voice. Create or pick the voice in ElevenLabs, copy its <b>voice ID</b> (in the voice's details or menu), and put it in <code>config\pipeline.json</code> under <code>stages.voice.voices</code>, keyed by the character's name exactly as it appears on the board:</p>
+      <div class="cmd"><pre><code>"voices": {
+  "Arun": "21m00Tcm4TlvDq8ikWAM",
+  "Grandpa": "another-voice-id"
+}</code></pre></div>
+      <p>The worker speaks each line with the voice of the <b>first character</b> listed in the shot's <span class="ui">Characters</span> field. Characters with no voice id fail that job with a clear error.</p>
+
+      <h3>Kling model names</h3>
+      <p>In <code>config\pipeline.json</code>, check <code>stages.keyframes.model</code>, <code>stages.keyframes.referenceModel</code> and <code>stages.video.model</code> against the model ids listed in your Kling API console, and check the <code>baseUrl</code> matches your account's region. See the <a href="#config">reference</a>.</p>
+
+      <div class="tip"><strong>Keep keys private</strong><p>Never paste a key into the board, a shot note, a script or a chat message. If a key leaks, revoke it in that provider's console and create a new one.</p></div>
+    </section>
+
+    <!-- 5 -->
+    <section class="doc" id="start-stop">
+      <h2><span class="num">05</span>Starting &amp; stopping</h2>
+      <p class="sub">Run these from the project folder in PowerShell.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>.\start.ps1</code></td><td>Starts the board server in the background and opens the board in your browser. If it's already running, it just opens the browser.</td></tr>
+          <tr><td><code>.\start.ps1 -NoBrowser</code></td><td>Starts without opening a browser tab.</td></tr>
+          <tr><td><code>.\start.ps1 -Port 5071</code></td><td>Uses another port, if 5070 is taken.</td></tr>
+          <tr><td><code>.\stop.ps1</code></td><td>Stops the board server and any running render or assembly.</td></tr>
+          <tr><td><code>.\stop.ps1 -Server</code></td><td>Stops only the board server.</td></tr>
+          <tr><td><code>.\stop.ps1 -Worker</code></td><td>Stops only a running render or assembly (including any ffmpeg it started).</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Logs</h3>
+      <p>Background processes write their output to the <code>renders</code> folder:</p>
+      <div class="tablewrap"><table>
+        <tbody>
+          <tr><td><code>renders\server.log</code>, <code>server.err.log</code></td><td>Board server</td></tr>
+          <tr><td><code>renders\worker.log</code>, <code>worker.err.log</code></td><td>Render or assembly</td></tr>
+        </tbody>
+      </table></div>
+      <div class="cmd"><span class="lbl">Watch a render live</span><pre><code>Get-Content renders\worker.log -Wait</code></pre></div>
+      <p>Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to stop watching. That doesn't stop the render.</p>
+      <div class="note"><strong>Port</strong><p>The board uses port <b>5070</b>, registered in <code>C:\Users\amitn\MyAIprojects\ports.md</code> so it doesn't clash with your other projects. It only accepts connections from this computer.</p></div>
+      <div class="note"><strong>After a restart of Windows</strong><p>Nothing starts automatically. Run <code>.\start.ps1</code> again; your data is all still in <code>data\</code>.</p></div>
+    </section>
+
+    <!-- 6 -->
+    <section class="doc" id="tour">
+      <h2><span class="num">06</span>Tour of the board</h2>
+      <p class="sub">The header shows four gauges (runtime planned, shots done, video credits, spend) and a colour bar of shot statuses. Below it are five tabs.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Tab</th><th>Use it to</th></tr></thead>
+        <tbody>
+          <tr><td class="ui">Shot list</td><td>See every shot in order with its framing, action, duration, tool, status, takes and credits. Filter by status. Click a shot to open the <b>shot editor</b>. Log a take with <span class="ui">+ Draft</span> / <span class="ui">+ Final</span>. Add shots with <span class="ui">+ Add shot</span>.</td></tr>
+          <tr><td class="ui">Script &amp; cast</td><td>Write or paste the script, break it into shots with Claude, and keep the locked look of every character and location, with reference images.</td></tr>
+          <tr><td class="ui">Rough cut</td><td>Play the whole film in order: selected takes as video, keyframes as held stills, and slate cards for shots with nothing yet.</td></tr>
+          <tr><td class="ui">Budget</td><td>Plan vs. spent per tool, a purchase log, and the credit balance of your video tool.</td></tr>
+          <tr><td class="ui">Pipeline</td><td>Choose the tool and mode (manual or automated) for each stage, set production settings (runtime, budget, credit rates, style prompt), and export the board as JSON or the shot list as CSV.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Shot statuses</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Status</th><th>Meaning</th><th>Set by</th></tr></thead>
+        <tbody>
+          <tr><td><span class="pill" style="--c:var(--s-script)">Scripted</span></td><td>Planned, no images yet</td><td>New shots</td></tr>
+          <tr><td><span class="pill" style="--c:var(--s-keyframe)">Keyframe</span></td><td>Has a start frame</td><td>You, or automatically when a rendered keyframe arrives</td></tr>
+          <tr><td><span class="pill" style="--c:var(--s-animating)">Animating</span></td><td>Video takes in progress</td><td>You, or automatically when a rendered take arrives</td></tr>
+          <tr><td><span class="pill" style="--c:var(--s-approved)">Approved</span></td><td>A take is good enough for the cut</td><td>You</td></tr>
+          <tr><td><span class="pill" style="--c:var(--s-final)">Final</span></td><td>Finished, final-quality take selected</td><td>You</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>Shots done</b> in the header counts Approved and Final shots.</p>
+    </section>
+
+    <!-- 7 -->
+    <section class="doc" id="workflow">
+      <h2><span class="num">07</span>Making a film, step by step</h2>
+      <p class="sub">The order that works best. You can go back to any step at any time.</p>
+      <ol class="steps">
+        <li><strong>Set up the production</strong>
+          On <span class="ui">Pipeline</span> → <b>Production settings</b>, set the target runtime, total budget, draft and final credit rates (credits per second of video in your video tool), and the <b>style prompt</b>. The style prompt is added to every keyframe prompt, so it keeps the whole film's look consistent. Click <span class="ui">Save settings</span>.
+        </li>
+        <li><strong>Write the script</strong>
+          On <span class="ui">Script &amp; cast</span>, paste or write the script. Screenplay format works best: scene headings (<code>INT. ATTIC – NIGHT</code>), action lines, then character names with their dialogue. Click <span class="ui">Save script</span>.
+        </li>
+        <li><strong>Lock your cast</strong>
+          Under <b>Cast</b>, add each character with a <b>locked look</b>: age, face, hair, build, <b>height</b>, outfit and any prop. Be specific and keep it short; this exact text is added to every prompt that character appears in. Add <b>voice notes</b> for yourself.
+          <p>Then upload up to 4 <b>reference images</b> per character (a character sheet or turnaround works best). The first one is the <b>primary</b>; automated keyframes send it to Kling to keep the face consistent. Use <span class="ui">Make primary</span> to change which one.</p>
+        </li>
+        <li><strong>Describe your locations</strong>
+          Under <b>Locations</b>, add each place with its layout, props and lighting, and reference images the same way as for characters. A shot's location description is added to its keyframe prompt.
+        </li>
+        <li><strong>Break the script into shots</strong>
+          Click <span class="ui">Break into shots with Claude</span> (needs <code>ANTHROPIC_API_KEY</code>). After 30–90 seconds you get proposed shots with framing, duration, action, dialogue and prompts. Review them, keep <span class="ui">Remove example shots</span> ticked if the board still holds the example shots, then click <span class="ui">Add to shot list</span>. For a long script, break it down one scene at a time.
+          <p>No Claude key? Add shots yourself with <span class="ui">+ Add shot</span> on the Shot list.</p>
+        </li>
+        <li><strong>Refine each shot</strong>
+          Click a shot to open the editor. Fill in or adjust:
+          <ul>
+            <li><b>Scene / Shot</b> numbers set the order (shown as <code>SC01 · SH02</code>).</li>
+            <li><b>Framing</b>: WS (wide), MS (medium), MCU (medium close-up), CU (close-up), ECU (extreme close-up), OTS (over the shoulder), POV, INSERT.</li>
+            <li><b>Duration</b> in seconds, <b>Tool</b> (video tool for this shot) and <b>Status</b>.</li>
+            <li><b>Characters</b>: names separated by commas, exactly as in the cast (e.g. <code>Arun, Tock</code>). The first one is the speaker for automated voice.</li>
+            <li><b>Location</b>, <b>Action</b> and <b>Dialogue</b>.</li>
+            <li><b>Keyframe prompt</b> (describes the still image) and <b>Motion prompt</b> (describes the movement for the video). <span class="ui">Suggest prompts with Claude</span> writes or improves both.</li>
+          </ul>
+          Click <span class="ui">Save shot</span>.
+        </li>
+        <li><strong>Make keyframes</strong>
+          <b>Manual:</b> click <span class="ui">Copy with cast &amp; style</span> next to the keyframe prompt; it copies the prompt plus the characters' locked looks, the location description and the style prompt. Paste it into your image tool (e.g. Midjourney), pick the best image, and click <span class="ui">Upload image</span> under <b>Keyframe</b> in the shot editor.
+          <p><b>Automated:</b> see <a href="#rendering">Automated rendering</a>. Queue <span class="ui">+ Keyframe</span> in the shot editor.</p>
+        </li>
+        <li><strong>Make video takes</strong>
+          Do cheap <b>draft</b> takes first to check motion and timing, then a <b>final</b> take once the shot works.
+          <p><b>Manual:</b> copy the motion prompt, generate image-to-video from the keyframe in your video tool, then <span class="ui">Upload video</span> under <b>Takes</b>. Log the credits it cost with <span class="ui">+ Draft</span> or <span class="ui">+ Final</span> on the shot list row (it uses the credit rates from settings).</p>
+          <p><b>Automated:</b> queue <span class="ui">+ Draft take</span> or <span class="ui">+ Final take</span>. Kling makes 5- or 10-second clips; longer shots are trimmed in the edit.</p>
+          <p>When a shot has several takes, choose which one plays in the cut with the select button on that take. Remove bad takes with ✕.</p>
+        </li>
+        <li><strong>Record voices</strong>
+          <b>Manual:</b> generate the line in ElevenLabs and keep the file with your edit. <b>Automated:</b> queue <span class="ui">+ Dialogue voice</span>; the audio file goes into <code>renders\</code> and its path shows in the shot editor. The rough-cut assembly mixes it in automatically.
+        </li>
+        <li><strong>Review and approve</strong>
+          Watch the <span class="ui">Rough cut</span> tab, note problems in each shot's <b>Notes</b>, redo takes, and move shots to <b>Approved</b> and then <b>Final</b>.
+        </li>
+        <li><strong>Assemble and finish</strong>
+          Build the rough cut and edit files, then do the final edit, colour, music and sound mix in DaVinci Resolve. See <a href="#rough-cut">Rough cut &amp; final edit</a>.
+        </li>
+      </ol>
+      <div class="tip"><strong>Consistency tips</strong><p>Keep locked looks short and concrete (“about 130 cm tall”, “oversized navy pajamas with small yellow rocket prints”). Always give characters a primary reference image. Keep the style prompt the same for the whole film. Generate a keyframe first and animate from it instead of going straight from text to video.</p></div>
+    </section>
+
+    <!-- 8 -->
+    <section class="doc" id="rendering">
+      <h2><span class="num">08</span>Automated rendering</h2>
+      <p class="sub">Let the render worker generate keyframes, video takes and dialogue through the tools' APIs.</p>
+      <ol class="steps">
+        <li><strong>Turn on automation for a stage</strong>
+          On <span class="ui">Pipeline</span> → <b>Pipeline stages</b>, pick a tool the worker supports and set its mode to <span class="ui">Automated (worker)</span>:
+          <div class="tablewrap"><table>
+            <thead><tr><th>Stage</th><th>Automatable tools</th></tr></thead>
+            <tbody>
+              <tr><td>Keyframes</td><td>Kling, Mock (test)</td></tr>
+              <tr><td>Video takes</td><td>Kling 3.0, Mock (test)</td></tr>
+              <tr><td>Voices</td><td>ElevenLabs, Mock (test)</td></tr>
+              <tr><td>Backup video, lip-sync, music, edit</td><td>Manual only</td></tr>
+            </tbody>
+          </table></div>
+          <b>Mock (test)</b> makes free placeholder files, so you can rehearse the whole flow without spending anything. Mock output is never added to the board as real media.
+        </li>
+        <li><strong>Queue work on shots</strong>
+          In the shot editor's <b>Render queue</b>, click <span class="ui">+ Keyframe</span>, <span class="ui">+ Draft take</span>, <span class="ui">+ Final take</span> and/or <span class="ui">+ Dialogue voice</span>. The buttons are greyed out until that stage is Automated. A shot needs a keyframe prompt for a keyframe, a motion prompt and a keyframe (or a queued keyframe) for video, and dialogue for a voice.
+        </li>
+        <li><strong>Run the render</strong>
+          <div class="cmd"><pre><code>.\render.ps1</code></pre></div>
+          It checks your setup (<b>doctor</b>), then prints the <b>plan</b>: every job, its estimated cost, and anything held back by the budget or skipped (with the reason). Type <kbd>y</kbd> to start. The render then runs in the background.
+          <p>Options: <code>-Only SC01-SH02</code> renders just that shot (repeat for more), and <code>-Yes</code> skips the question.</p>
+        </li>
+        <li><strong>Watch results arrive</strong>
+          The board updates by itself as soon as the render finishes. Keyframes and selected takes appear on the shots, statuses move to Keyframe / Animating, credits are added, and the queue entries clear. Follow progress with <code>Get-Content renders\worker.log -Wait</code>.
+        </li>
+        <li><strong>Check failures</strong>
+          Failed or skipped jobs stay queued and the shot editor shows <span class="ui">Last render failed: …</span> with the reason. Fix the problem (prompt, key, voice id…) and run <code>.\render.ps1</code> again.
+        </li>
+      </ol>
+      <p>Extra keyframe variants (the worker makes 2 per shot by default) stay in <code>renders\&lt;shot&gt;\</code>. Only the first is attached to the shot; upload another one by hand if you prefer it.</p>
+      <div class="warn"><strong>Stopping a render</strong><p><code>.\stop.ps1 -Worker</code> stops the worker on your computer, but jobs already sent to Kling or ElevenLabs keep running there and may still be charged. Their results won't be downloaded.</p></div>
+    </section>
+
+    <!-- 9 -->
+    <section class="doc" id="rough-cut">
+      <h2><span class="num">09</span>Rough cut &amp; final edit</h2>
+      <h3>In the board</h3>
+      <p>The <span class="ui">Rough cut</span> tab plays every shot in order: the selected take as video, otherwise the keyframe as a held still (an animatic), otherwise a slate card. Use <span class="ui">◀ Prev</span>, <span class="ui">▶ Play</span>, <span class="ui">Next ▶</span>, or click any segment of the timeline.</p>
+      <h3>Build the rough-cut video and edit files</h3>
+      <div class="cmd"><pre><code>.\render.ps1 -Assemble</code></pre></div>
+      <div class="cmd"><span class="lbl">With a music bed under the dialogue</span><pre><code>.\render.ps1 -Assemble -Music C:\path\to\music.mp3</code></pre></div>
+      <p>Everything lands in <code>renders\cut\</code>:</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>File</th><th>What it is</th></tr></thead>
+        <tbody>
+          <tr><td><code>rough-cut.mp4</code></td><td>The whole film: takes, stills and slates, with dialogue (and music) mixed in. 1920×1080, 24 fps by default.</td></tr>
+          <tr><td><code>timeline.fcpxml</code></td><td>Timeline for DaVinci Resolve: <b>File → Import → Timeline</b>.</td></tr>
+          <tr><td><code>timeline.edl</code></td><td>Edit decision list for other editors.</td></tr>
+          <tr><td><code>captions.srt</code></td><td>Subtitles from the dialogue.</td></tr>
+          <tr><td><code>timeline.json</code>, <code>assemble.sh</code></td><td>The timeline data, and a script to rebuild the video by hand.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Then finish in DaVinci Resolve (or Premiere): trim, colour match, add music and effects, mix sound and export.</p>
+    </section>
+
+    <!-- 10 -->
+    <section class="doc" id="budget">
+      <h2><span class="num">10</span>Budget &amp; cost safety</h2>
+      <ul>
+        <li><b>Plan vs. spent</b> (Budget tab) compares what you planned per tool with what you've logged.</li>
+        <li><b>Log a purchase</b> every time you pay for a plan or top-up: date, tool, item, amount, and credits added (video tool only). That keeps the spend gauge and the credit balance right. Provider charges go to your accounts with them, not through the board.</li>
+        <li><b>Draft vs. final rates</b> (Pipeline → Production settings) are the credits per second your video tool charges. Logged and rendered takes use them to count credits.</li>
+      </ul>
+      <h3>How the render worker protects your budget</h3>
+      <ul>
+        <li>It always shows the plan and estimated cost first, and asks before any paid job runs.</li>
+        <li>It <b>holds back</b> jobs that would push projected spend past your total budget minus a safety margin (<code>stopAtRemainingUsd</code>, $10 by default). Held jobs are listed as <code>HELD</code> in the plan.</li>
+        <li>Estimates come from the prices in <code>config\pipeline.json</code> (<code>usdPerImage</code>, <code>usdPerCredit</code>, <code>usdPerLine</code>). If a price is 0, that stage counts as free and isn't protected, and <b>doctor</b> warns you. Set real prices.</li>
+        <li>Rehearse with <b>Mock (test)</b> before the first paid run.</li>
+      </ul>
+    </section>
+
+    <!-- 11 -->
+    <section class="doc" id="config">
+      <h2><span class="num">11</span><code>config\pipeline.json</code> reference</h2>
+      <p class="sub">Provider details for the render worker. The board chooses which tool and mode each stage uses; this file holds models, endpoints, prices and the <i>names</i> of the key variables. It never contains the keys themselves.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Setting</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>budget.totalUsd</code></td><td>Total budget used by the budget guard</td></tr>
+          <tr><td><code>budget.stopAtRemainingUsd</code></td><td>Safety margin: jobs are held once projected spend would leave less than this</td></tr>
+          <tr><td><code>stages.keyframes.model</code></td><td>Kling image model for keyframes (text-only, and single-reference mode)</td></tr>
+          <tr><td><code>stages.keyframes.referenceModel</code></td><td>Kling image model used in multi-reference mode</td></tr>
+          <tr><td><code>stages.keyframes.usdPerImage</code></td><td>Price per keyframe image, for estimates</td></tr>
+          <tr><td><code>stages.keyframes.options.variantsPerShot</code></td><td>Images generated per keyframe job (default 2)</td></tr>
+          <tr><td><code>stages.keyframes.options.referenceMode</code></td><td><code>multi</code> (default) sends the primary reference of up to 4 characters plus the location's; <code>single</code> sends only the first character's (or else the location's)</td></tr>
+          <tr><td><code>stages.keyframes.options.imageFidelity</code></td><td>How closely the image follows the reference in single-reference mode (0–1)</td></tr>
+          <tr><td><code>stages.video.model</code></td><td>Kling video model</td></tr>
+          <tr><td><code>stages.video.usdPerCredit</code></td><td>Dollar value of one Kling credit, for estimates</td></tr>
+          <tr><td><code>stages.video.options.draftMode</code> / <code>finalMode</code></td><td>Kling quality mode for draft (<code>std</code>) and final (<code>pro</code>) takes</td></tr>
+          <tr><td><code>stages.video.options.negativePrompt</code></td><td>Things to avoid in every take</td></tr>
+          <tr><td><code>stages.*.api.baseUrl</code></td><td>Kling API host for your region</td></tr>
+          <tr><td><code>stages.*.api.accessKeyEnv</code> / <code>secretKeyEnv</code></td><td>Names of the Kling key variables (default <code>KLING_ACCESS_KEY</code> / <code>KLING_SECRET_KEY</code>)</td></tr>
+          <tr><td><code>stages.voice.model</code></td><td>ElevenLabs model (default <code>eleven_multilingual_v2</code>)</td></tr>
+          <tr><td><code>stages.voice.voices</code></td><td>Character name → ElevenLabs voice ID</td></tr>
+          <tr><td><code>stages.voice.usdPerLine</code></td><td>Price per spoken line, for estimates</td></tr>
+          <tr><td><code>stages.voice.api.secretEnv</code></td><td>Name of the ElevenLabs key variable (default <code>ELEVENLABS_API_KEY</code>)</td></tr>
+          <tr><td><code>assembly.fps</code>, <code>width</code>, <code>height</code></td><td>Rough-cut frame rate and size</td></tr>
+          <tr><td><code>assembly.slateColor</code>, <code>musicVolumeDb</code></td><td>Slate card colour, and music level under dialogue</td></tr>
+        </tbody>
+      </table></div>
+      <p>After editing, run <code>node worker/src/cli.js doctor --board data/board</code> to check it. A JSON typo stops the worker with an error naming the file; check commas and quotes.</p>
+    </section>
+
+    <!-- 12 -->
+    <section class="doc" id="files">
+      <h2><span class="num">12</span>Files, backups &amp; data</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Folder</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td><code>data\board\</code></td><td>The board's database: one JSON file per shot, take, character, location and purchase, plus settings and script</td></tr>
+          <tr><td><code>data\assets\</code></td><td>Every uploaded or rendered keyframe, reference image and video take</td></tr>
+          <tr><td><code>renders\</code></td><td>Render output per shot, results of each run, voice files, logs, and <code>cut\</code> for the rough cut</td></tr>
+          <tr><td><code>config\pipeline.json</code></td><td>Your provider settings</td></tr>
+          <tr><td><code>board\index.html</code></td><td>The board page itself</td></tr>
+          <tr><td><code>local\</code></td><td>The board server, the render bridge and this help page</td></tr>
+        </tbody>
+      </table></div>
+      <p><code>data\</code> and <code>renders\</code> aren't in Git, so <b>back them up yourself</b>. Stop the board first, then copy both folders somewhere safe, such as OneDrive or an external drive:</p>
+      <div class="cmd"><pre><code>.\stop.ps1; Copy-Item data, renders -Destination "D:\Backups\tock-$(Get-Date -Format yyyy-MM-dd)" -Recurse</code></pre></div>
+      <p>To restore, stop the board and copy the folders back. Use <span class="ui">Export board (JSON)</span> on the Pipeline tab for a single-file snapshot of the board's data (no media files).</p>
+    </section>
+
+    <!-- 13 -->
+    <section class="doc" id="troubleshooting">
+      <h2><span class="num">13</span>Troubleshooting</h2>
+      <dl class="faq">
+        <dt>The browser says it can't reach localhost:5070</dt>
+        <dd>The board isn't running. Run <code>.\start.ps1</code>. If it still fails, read <code>renders\server.err.log</code>.</dd>
+        <dt>“Port 5070 is already in use”</dt>
+        <dd>Another program is using it. Run <code>.\start.ps1 -Port 5071</code>, or find the program with <code>Get-NetTCPConnection -LocalPort 5070</code>.</dd>
+        <dt>The header says “Connection lost. Reload to reconnect.”</dt>
+        <dd>The board server stopped. Run <code>.\start.ps1</code>, then reload the page. Nothing you saved is lost.</dd>
+        <dt>The Claude buttons are missing</dt>
+        <dd><code>ANTHROPIC_API_KEY</code> isn't set, or the server was started before you set it. Set it, open a new PowerShell window, then <code>.\stop.ps1 -Server</code> and <code>.\start.ps1</code>.</dd>
+        <dt>“Something went wrong reaching Claude”</dt>
+        <dd>Check the key is valid and has credit at console.anthropic.com. The exact error is in <code>renders\server.err.log</code>.</dd>
+        <dt>The render queue buttons are greyed out</dt>
+        <dd>That stage is still Manual. Set it to <span class="ui">Automated (worker)</span> on the Pipeline tab, with a supported tool.</dd>
+        <dt><code>.\render.ps1</code> says “Nothing queued”</dt>
+        <dd>No shot has queued work, or every queued stage is manual. Queue work in the shot editor first.</dd>
+        <dt>Doctor says “environment variable … is not set”</dt>
+        <dd>Set the key with <code>setx</code> (see <a href="#keys">API keys</a>) and run the command from a <b>new</b> PowerShell window.</dd>
+        <dt>“voice id for … is a placeholder” / “No ElevenLabs voice id”</dt>
+        <dd>Add that character's voice ID under <code>stages.voice.voices</code> in <code>config\pipeline.json</code>, spelled exactly as on the board.</dd>
+        <dt>“Shot has no keyframe to animate” / “no motion prompt” / “no dialogue”</dt>
+        <dd>Add the missing keyframe, prompt or dialogue to the shot, or queue a keyframe together with the video.</dd>
+        <dt>A job shows <code>HELD</code> in the plan</dt>
+        <dd>It would go over budget. Raise the budget (Pipeline → Production settings, or <code>budget</code> in pipeline.json), or render fewer shots with <code>-Only</code>.</dd>
+        <dt>“ffmpeg not found” when assembling</dt>
+        <dd>Install it with <code>winget install Gyan.FFmpeg</code> and open a new PowerShell window.</dd>
+        <dt>“A render is already running”</dt>
+        <dd>Wait for it to finish (watch <code>renders\worker.log</code>), or stop it with <code>.\stop.ps1 -Worker</code>.</dd>
+        <dt>A video won't play or seek in the board</dt>
+        <dd>Upload MP4 (H.264) or WebM files. Other formats may not play in the browser.</dd>
+        <dt>PowerShell says running scripts is disabled</dt>
+        <dd>Run <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> once, then open a new window.</dd>
+      </dl>
+    </section>
+
+    <!-- 14 -->
+    <section class="doc" id="commands">
+      <h2><span class="num">14</span>Command reference</h2>
+      <p class="sub">All run from the project folder in PowerShell.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>.\start.ps1 [-Port n] [-NoBrowser]</code></td><td>Start the board</td></tr>
+          <tr><td><code>.\stop.ps1 [-Server] [-Worker]</code></td><td>Stop the board and/or a render</td></tr>
+          <tr><td><code>.\render.ps1 [-Only SC01-SH02] [-Yes]</code></td><td>Render the queue and update the board</td></tr>
+          <tr><td><code>.\render.ps1 -Assemble [-Music file]</code></td><td>Build the rough cut and edit files</td></tr>
+          <tr><td><code>node worker/src/cli.js doctor --board data/board</code></td><td>Check config and keys</td></tr>
+          <tr><td><code>node worker/src/cli.js plan --board data/board</code></td><td>Show jobs and cost without rendering</td></tr>
+          <tr><td><code>node worker/src/cli.js assemble --board data/board --inputs data/assets --edit-only</code></td><td>Write only the edit files (no ffmpeg needed)</td></tr>
+          <tr><td><code>npm --prefix worker test</code></td><td>Run the worker's tests (no network or keys needed)</td></tr>
+          <tr><td><code>Get-Content renders\worker.log -Wait</code></td><td>Watch a render live</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <footer>AI Film Production Board · local edition · this guide is served at <code>/help</code> by the board server and lives in <code>local\help.html</code>.</footer>
+  </main>
+</div>
+<script>
+(() => {
+  // Copy buttons on command blocks
+  document.querySelectorAll(".cmd").forEach((box) => {
+    const b = document.createElement("button");
+    b.className = "copy"; b.type = "button"; b.textContent = "Copy";
+    b.addEventListener("click", async () => {
+      const text = box.querySelector("code").innerText;
+      try { await navigator.clipboard.writeText(text); b.textContent = "Copied"; }
+      catch { const r = document.createRange(); r.selectNodeContents(box.querySelector("code")); getSelection().removeAllRanges(); getSelection().addRange(r); b.textContent = "Press Ctrl+C"; }
+      setTimeout(() => (b.textContent = "Copy"), 1600);
+    });
+    box.appendChild(b);
+  });
+  // Theme toggle (remembered per browser)
+  const root = document.documentElement;
+  try { const t = localStorage.getItem("help-theme"); if (t) root.dataset.theme = t; } catch {}
+  document.getElementById("theme").addEventListener("click", () => {
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("help-theme", root.dataset.theme); } catch {}
+  });
+  // Highlight the current section in the contents
+  const links = new Map([...document.querySelectorAll("nav.toc ol a")].map((a) => [a.getAttribute("href").slice(1), a]));
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { links.forEach((a) => a.classList.remove("active")); links.get(e.target.id)?.classList.add("active"); }
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  document.querySelectorAll("section.doc").forEach((s) => io.observe(s));
+})();
+</script>
+</body>
+</html>
